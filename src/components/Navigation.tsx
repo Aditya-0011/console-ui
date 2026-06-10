@@ -1,0 +1,97 @@
+import { Link } from "react-router";
+
+import { AppWindow, SquareAsterisk, LogOut } from "lucide-react";
+
+import { useDataMutation } from "@/api/handler";
+import { useAuth } from "@/contexts/AuthContext";
+
+import { type SimpleResponse } from "@/lib/objects";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+
+type navigationOptions = {
+  title: string;
+  url: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+};
+
+const items: navigationOptions[] = [
+  { title: "Apps", url: "/apps", icon: AppWindow },
+  { title: "Secrets", url: "/secrets", icon: SquareAsterisk },
+];
+
+export function Navigation() {
+  const { logout } = useAuth();
+
+  const { mutateAsync, isPending } = useDataMutation<null, SimpleResponse>(
+    "auth",
+    "/logout",
+    false,
+    {
+      invalidateKey: [["userDetails"]],
+      onSuccess: () => {
+        logout();
+      },
+    },
+  );
+
+  async function handleLogout() {
+    await mutateAsync(null);
+  }
+
+  return (
+    <Sidebar
+      collapsible="icon"
+      className="border-r-neutral-800 bg-neutral-950 text-white"
+    >
+      <SidebarContent className="bg-neutral-950 py-1 text-white">
+        <SidebarGroup>
+          <SidebarGroupLabel className="mb-2 text-lg text-neutral-400 group-data-[collapsible=icon]:mb-0">
+            Links
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    className="gap-4 text-base hover:bg-neutral-800 hover:text-white"
+                    render={<Link to={item.url} />}
+                  >
+                    <item.icon className="size-10 text-lime-500" />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter className="bg-neutral-950">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Logout"
+              className="gap-3 text-base text-red-500 hover:bg-red-500/10 hover:text-red-600 hover:ring hover:ring-red-500"
+              onClick={handleLogout}
+              disabled={isPending}
+            >
+              <LogOut className="size-10" />
+              {isPending ? "Logging out..." : "Logout"}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
