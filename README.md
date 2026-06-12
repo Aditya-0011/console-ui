@@ -1,6 +1,6 @@
 # Console UI
 
-The administrative console interface for managing the infrastructure platform.
+The root administrative dashboard for securely managing the developer platform.
 
 [![React Version](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
@@ -8,7 +8,7 @@ The administrative console interface for managing the infrastructure platform.
 
 ## Overview
 
-The Console UI is a dedicated frontend application acting as the primary dashboard for platform administration. It interacts with the backend infrastructure through the public `gateway` API, providing a fast, reactive interface for configuration, monitoring, and administrative tasks.
+The Console UI acts as the secure entry point and primary access dashboard for the platform. Designed for platform administrators, it interfaces with the `gateway` API to provide login mechanisms, manage securely generated API keys (`pk_...`), and act as a central hub to navigate to other internal applications like the Portfolio Manager.
 
 ## Architecture & Tech Stack
 
@@ -35,6 +35,13 @@ The Console UI is a dedicated frontend application acting as the primary dashboa
 - 🎨 **Modern Design**: Built using `@base-ui/react` and Tailwind CSS, with dynamic theming support (`next-themes`).
 - 🔄 **Reactive Data**: Integrated with TanStack Query to provide optimistic updates, caching, and background data synchronization.
 - 📝 **Type-Safe Validation**: Forms and API responses are strictly validated on the client side using `zod`.
+
+## Platform Routing
+
+The console maps strictly to the platform's security boundaries:
+- `/login`: The secure root login page for platform administrators.
+- `/secrets`: A dedicated interface to generate, view, and rotate API keys required by external portfolio frontends.
+- `/apps`: A navigational hub linking to other secured platform modules (e.g., the Portfolio Manager).
 
 ## Getting Started
 
