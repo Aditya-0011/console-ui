@@ -1,75 +1,71 @@
-# React + TypeScript + Vite
+# Console UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The administrative console interface for managing the infrastructure platform.
 
-Currently, two official plugins are available:
+[![React Version](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4.3-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Overview
 
-## React Compiler
+The Console UI is a dedicated frontend application acting as the primary dashboard for platform administration. It interacts with the backend infrastructure through the public `gateway` API, providing a fast, reactive interface for configuration, monitoring, and administrative tasks.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Architecture & Tech Stack
 
-Note: This will impact Vite dev & build performances.
+- **Framework**: Built with React 19 and compiled using Vite for instantaneous hot-module replacement (HMR) and optimized production bundles.
+- **Package Manager**: Managed and executed using `bun` for maximum speed.
+- **Styling**: Fully styled with Tailwind CSS v4, utilizing `shadcn` tooling alongside `@base-ui/react` primitives.
+- **State & Data Fetching**: Relies on `@tanstack/react-query` for asynchronous state management and `@tanstack/react-form` for complex form handling.
+- **Routing**: Client-side navigation handled by React Router v7.
 
-## Expanding the ESLint configuration
+### Project Structure
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```text
+.
+├── public/        # Static assets
+├── src/           # React component source code
+├── index.html     # Application entrypoint template
+├── package.json   # Dependencies and scripts
+└── vite.config.ts # Vite configuration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Features
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+- ⚡ **Lightning Fast**: Bootstrapped with Vite and React 19 Compiler plugins for top-tier rendering performance.
+- 🎨 **Modern Design**: Built using `@base-ui/react` and Tailwind CSS, with dynamic theming support (`next-themes`).
+- 🔄 **Reactive Data**: Integrated with TanStack Query to provide optimistic updates, caching, and background data synchronization.
+- 📝 **Type-Safe Validation**: Forms and API responses are strictly validated on the client side using `zod`.
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) is required to manage dependencies and run scripts efficiently.
+
+### Configuration
+
+The frontend relies on the following environment variables to correctly route requests to the backend gateway and cross-link to other UI portals. You should export these in your shell environment.
+
+| Variable | Description | Required |
+| :--- | :--- | :---: |
+| `VITE_AUTH_API_URL` | Endpoint for the public Auth API routes | **Yes** |
+| `VITE_MANAGER_API_URL` | Endpoint for the public Manager API routes | **Yes** |
+| `VITE_MANAGER_URL` | Base URL of the deployed Manager UI (used for cross-portal navigation) | **Yes** |
+| `VITE_MODE` | Specifies the current environment mode (e.g., `development`) | No |
+
+### Running the Service
+
+Install dependencies and start the Vite development server:
+
+```bash
+bun install
+bun run dev
+```
+
+### Building for Production
+
+To compile the application into static HTML/CSS/JS assets for deployment:
+
+```bash
+bun run build
 ```
