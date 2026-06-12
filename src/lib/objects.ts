@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { DateTime } from "luxon";
 
 export const LoginRequestSchema = z.object({
   email: z.email("Invalid email address"),
@@ -18,16 +17,10 @@ export type SimpleResponse = z.infer<typeof SimpleResponseSchema>;
 
 export const GetKeyResponseSchema = z.object({
   key: z.string(),
-  updated_at: z
-    .object({
-      seconds: z.number(),
-      nanos: z.number(),
-    })
-    .transform((value) =>
-      DateTime.fromSeconds(value.seconds, {
-        zone: "Asia/Kolkata",
-      }).toLocaleString(DateTime.DATETIME_MED),
-    ),
+  updated_at: z.object({
+    seconds: z.number(),
+    nanos: z.number(),
+  }),
 });
 export type GetKeyResponse = z.infer<typeof GetKeyResponseSchema>;
 

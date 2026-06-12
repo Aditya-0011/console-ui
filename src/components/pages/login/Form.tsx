@@ -50,7 +50,9 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
         if (parsed.success && parsed.data !== "Portfolio") {
           const app = appUrlMapping.find((a) => a.name === parsed.data);
           if (app) {
-            window.location.href = app.url;
+            const url = new URL(app.url);
+            url.searchParams.set("auth", "success");
+            window.location.href = url.toString();
             return;
           }
         }
@@ -152,9 +154,11 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
                             type="button"
                             variant="ghost"
                             size="icon-sm"
-                            className="text-lime-600 hover:text-lime-500 hover:bg-transparent"
+                            className="text-lime-600 hover:bg-transparent hover:text-lime-500"
                             onClick={() => setShowPassword(!showPassword)}
-                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
                           >
                             {showPassword ? <Eye /> : <EyeOff />}
                           </Button>

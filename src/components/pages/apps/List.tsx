@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+const MANAGER_URL = import.meta.env.VITE_MANAGER_URL;
+
 export const appUrlMapping: AppUrlMapping[] = [
   {
     name: "Portfolio",
@@ -19,7 +21,7 @@ export const appUrlMapping: AppUrlMapping[] = [
   },
   {
     name: "Manager",
-    url: "https://manager.adityapunmiya.com",
+    url: MANAGER_URL,
     description: "PMS for adityapunmiya.com",
   },
 ];
@@ -32,14 +34,19 @@ export function List() {
           key={i}
           className="group bg-muted/5 hover:bg-muted/50 mb-4 break-inside-avoid ring ring-white/10 backdrop-blur transition-all contain-content hover:scale-[1.01] hover:text-lime-200 hover:ring-lime-600"
         >
-          <Link to={app.url} rel={app.rel} target="_blank" className="flex h-full flex-col">
+          <Link
+            to={app.url}
+            rel={app.rel}
+            target="_blank"
+            className="flex h-full flex-col"
+          >
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-lg leading-tight tracking-tight">
                 {app.name}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 p-4 pt-0">
-              <CardDescription className="text-sm leading-tight text-muted-foreground">
+              <CardDescription className="text-muted-foreground text-sm leading-tight">
                 {app.description}
               </CardDescription>
             </CardContent>

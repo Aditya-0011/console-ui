@@ -16,12 +16,12 @@ import {
 } from "@/lib/objects";
 import { useAuth } from "@/contexts/AuthContext";
 
-const AUTH_URL = import.meta.env.VITE_AUTH_URL;
-const MANAGER_URL = import.meta.env.VITE_MANAGER_URL;
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL;
+const MANAGER_API_URL = import.meta.env.VITE_MANAGER_API_URL;
 
 const appApiMapping: ServiceApiMapping = {
-  auth: AUTH_URL,
-  manager: MANAGER_URL,
+  auth: AUTH_API_URL,
+  manager: MANAGER_API_URL,
 };
 
 async function fetcher<Request, Response>(
