@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import {
   useMutation,
   useQuery,
   useQueryClient,
   type QueryKey,
 } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "react-router";
 
 import { toast } from "sonner";
 import {
@@ -73,14 +71,9 @@ export function useDataQuery<Request, Response>(
     skipAuthErrorHandling?: boolean;
   },
 ) {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const location = useLocation();
   const { logout } = useAuth();
 
-  const currentPath = location.pathname.slice(1);
-
-  const queryResult = useQuery<Response, Error>({
+  return useQuery<Response, Error>({
     queryKey: [...key, url, app, textOnlyResponse],
     queryFn: () =>
       fetcher<Request, Response>(app, url, undefined, "GET", textOnlyResponse),
@@ -97,54 +90,14 @@ export function useDataQuery<Request, Response>(
       }
       return failureCount <= 3;
     },
+    meta: {
+      onSuccess: options?.onSuccess,
+      invalidateKey: options?.invalidateKey,
+      skipAuthErrorHandling: options?.skipAuthErrorHandling,
+      logout,
+    },
   });
-
-  useEffect(() => {
-    if (queryResult.isSuccess) {
-      if (options?.onSuccess) options.onSuccess(queryResult.data as Response);
-      if (options?.invalidateKey) {
-        for (const key of options.invalidateKey) {
-          queryClient.invalidateQueries({ queryKey: key });
-        }
-      }
-    }
-  }, [queryResult.isSuccess, queryResult.data, options, queryClient]);
-
-  useEffect(() => {
-    if (queryResult.isError && queryResult.error instanceof FetchError) {
-      const { message, status } = queryResult.error as FetchError;
-      if (status === 401 || status === 0) {
-        if (!options?.skipAuthErrorHandling) {
-          queryClient.clear();
-          logout();
-          navigate("/login", { replace: true });
-          toast.error(message, { toasterId: "login" });
-        } else {
-          if (currentPath !== "login") {
-            toast.error(message, { toasterId: "root" });
-          }
-        }
-      } else {
-        if (currentPath !== "login") {
-          toast.error(message, { toasterId: "root" });
-        } else {
-          toast.error(message, { toasterId: "login" });
-        }
-      }
-    }
-  }, [
-    queryResult.isError,
-    queryResult.error,
-    queryClient,
-    navigate,
-    currentPath,
-    logout,
-    options?.skipAuthErrorHandling,
-  ]);
-
-  return queryResult;
 }
-
 export function useDataMutation<Request, Response>(
   app: ServiceList,
   url: string,
@@ -155,11 +108,7 @@ export function useDataMutation<Request, Response>(
   },
 ) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const location = useLocation();
   const { logout } = useAuth();
-
-  const currentPath = location.pathname.slice(1);
 
   return useMutation<Response, FetchError, Request>({
     mutationFn: (variables) =>
@@ -174,11 +123,14 @@ export function useDataMutation<Request, Response>(
     },
     onError: (error) => {
       if (error instanceof FetchError) {
+        const currentPath = window.location.pathname.slice(1);
+        
         if (error.status === 401 || error.status === 0) {
           queryClient.clear();
           logout();
-          navigate("/login", { replace: true });
           toast.error(error.message, { toasterId: "login" });
+          window.location.href = `/login`;
+          return;
         } else {
           if (currentPath !== "login") {
             toast.error(error.message, { toasterId: "root" });
