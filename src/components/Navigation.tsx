@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 import { AppWindow, SquareAsterisk, LogOut } from "lucide-react";
 
@@ -32,6 +32,7 @@ const items: navigationOptions[] = [
 
 export function Navigation() {
   const { logout } = useAuth();
+  const { pathname } = useLocation();
 
   const { mutateAsync, isPending } = useDataMutation<null, SimpleResponse>(
     "auth",
@@ -54,7 +55,7 @@ export function Navigation() {
       collapsible="icon"
       className="border-r-neutral-800 bg-neutral-950 text-white"
     >
-      <SidebarContent className="bg-neutral-950 py-1 text-white">
+      <SidebarContent className="bg-neutral-950 py-1">
         <SidebarGroup>
           <SidebarGroupLabel className="mb-2 text-lg text-neutral-400 group-data-[collapsible=icon]:mb-0">
             Links
@@ -65,8 +66,18 @@ export function Navigation() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     tooltip={item.title}
-                    className="gap-4 text-base hover:bg-neutral-800 hover:text-white"
-                    render={<Link to={item.url} />}
+                    className="gap-4 text-base hover:bg-neutral-800"
+                    render={
+                      pathname === item.url ? (
+                        <button
+                          type="button"
+                          aria-label={item.title}
+                          disabled
+                        />
+                      ) : (
+                        <Link to={item.url} />
+                      )
+                    }
                   >
                     <item.icon className="size-10 text-lime-500" />
                     <span>{item.title}</span>

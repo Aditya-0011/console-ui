@@ -3,12 +3,13 @@ import { Link } from "react-router";
 import { Home, ArrowLeft } from "lucide-react";
 
 import { useDataQuery } from "@/api/handler";
+import { type FetchError } from "@/lib/objects";
 
 import { Loading } from "@/components/Loading";
 import { Error } from "@/components/Error";
 
 export default function NotFound() {
-  const { data, isLoading, isError } = useDataQuery<null, string>(
+  const { data, isLoading, isError, error } = useDataQuery<null, string>(
     "auth",
     ["random"],
     "/random",
@@ -24,7 +25,14 @@ export default function NotFound() {
     );
   }
 
-  if (isError || !data) {
+  const is404Error =
+    isError &&
+    error &&
+    "status" in error &&
+    (error as FetchError).status === 404;
+  const content = is404Error ? (error as FetchError).message : data;
+
+  if (!content) {
     return (
       <div className="flex h-screen w-full items-center justify-center text-center">
         <Error content="custom slur" />
@@ -32,12 +40,12 @@ export default function NotFound() {
     );
   }
 
-  const [preffix, message] = data.split(":");
+  const [preffix, message] = content.split(":");
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-950">
       <div className="mx-auto max-w-7xl px-1 text-center">
         <div className="mb-8">
-          <h1 className="text-9xl font-bold text-sky-500">404</h1>
+          <h1 className="text-9xl font-bold text-lime-500">404</h1>
           <h2 className="mt-4 text-2xl font-semibold text-white">{preffix}</h2>
           <p className="mt-2 text-neutral-400">{message}</p>
         </div>
@@ -45,7 +53,7 @@ export default function NotFound() {
         <div className="flex flex-row justify-center gap-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-neutral-950 transition-colors hover:bg-sky-400"
+            className="inline-flex items-center gap-2 rounded-lg bg-lime-500 px-4 py-2 text-sm font-medium text-neutral-950 transition-colors hover:bg-lime-400"
           >
             <Home className="h-4 w-4" />
             Go Home

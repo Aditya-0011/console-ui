@@ -67,7 +67,6 @@ export function useDataQuery<Request, Response>(
     staleTime?: number;
     refetchInterval?: number;
     onSuccess?: (data: Response) => void;
-    select?: (data: unknown) => Response;
     skipAuthErrorHandling?: boolean;
   },
 ) {
@@ -80,13 +79,15 @@ export function useDataQuery<Request, Response>(
     enabled: true,
     staleTime: options?.staleTime ?? 30 * 60 * 1000,
     refetchInterval: options?.refetchInterval,
-    select: options?.select as ((data: unknown) => Response) | undefined,
     retry: (failureCount, error) => {
-      if (
-        error instanceof FetchError &&
-        (error.status === 401 || error.status === 0)
-      ) {
-        return false;
+      if (error instanceof FetchError) {
+        if (
+          error.status === 401 ||
+          error.status === 404 ||
+          error.status === 0
+        ) {
+          return false;
+        }
       }
       return failureCount <= 3;
     },

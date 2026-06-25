@@ -33,15 +33,17 @@ export function Rotate({
 }: RotateProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          title={title}
-          className="text-red-500 hover:bg-red-500/10 hover:text-red-600 hover:ring hover:ring-red-500"
-        >
-          <RefreshCw className="size-4" />
-        </Button>
+      <AlertDialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            title={title}
+            className="text-red-500 hover:bg-red-500/10 hover:text-red-600 hover:ring hover:ring-red-500"
+          />
+        }
+      >
+        <RefreshCw className="size-4" />
       </AlertDialogTrigger>
       <AlertDialogContent className="border border-red-500">
         <AlertDialogHeader>
