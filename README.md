@@ -1,6 +1,6 @@
 # Console UI
 
-The root administrative dashboard for securely managing the developer platform.
+The root administrative dashboard for managing the platform.
 
 [![React Version](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
@@ -8,70 +8,74 @@ The root administrative dashboard for securely managing the developer platform.
 
 ## Overview
 
-The Console UI acts as the secure entry point and primary access dashboard for the platform. Designed for platform administrators, it interfaces with the `gateway` API to provide login mechanisms, manage securely generated API keys (`pk_...`), and act as a central hub to navigate to other internal applications like the Portfolio Manager.
+The console UI acts as the secure entry point and primary access dashboard for the platform. It interfaces with the `gateway` API to provide login mechanisms, manage generated API keys, and act as a central hub to navigate to other internal applications.
 
-## Architecture & Tech Stack
+## Architecture
 
-- **Framework**: Built with React 19 and compiled using Vite for instantaneous hot-module replacement (HMR) and optimized production bundles.
-- **Package Manager**: Managed and executed using `bun` for maximum speed.
-- **Styling**: Fully styled with Tailwind CSS v4, utilizing `shadcn` tooling alongside `@base-ui/react` primitives.
-- **State & Data Fetching**: Relies on `@tanstack/react-query` for asynchronous state management and `@tanstack/react-form` for complex form handling.
-- **Routing**: Client-side navigation handled by React Router v7.
+This section explains the technologies and physical layout of the console UI.
 
-### Project Structure
+- **Framework**: Built with React 19 and compiled using Vite for hot-module replacement
+- **Package manager**: Managed and executed using `bun`
+- **Styling**: Styled with Tailwind CSS v4, utilizing `shadcn` tooling and `@base-ui/react` primitives
+- **State**: Uses `@tanstack/react-query` for asynchronous state management and `@tanstack/react-form` for complex form handling
+- **Routing**: Client-side navigation handled by React Router v8
 
-```text
-.
-├── public/        # Static assets
-├── src/           # React component source code
-├── index.html     # Application entrypoint template
-├── package.json   # Dependencies and scripts
-└── vite.config.ts # Vite configuration
-```
+### Project structure
+
+- `public/`: Static assets
+- `src/`: React component source code
+- `index.html`: Application entrypoint template
+- `package.json`: Dependencies and scripts
+- `vite.config.ts`: Vite configuration
 
 ## Features
 
-- ⚡ **Lightning Fast**: Bootstrapped with Vite and React 19 Compiler plugins for top-tier rendering performance.
-- 🎨 **Modern Design**: Built using `@base-ui/react` and Tailwind CSS, with dynamic theming support (`next-themes`).
-- 🔄 **Reactive Data**: Integrated with TanStack Query to provide optimistic updates, caching, and background data synchronization.
-- 📝 **Type-Safe Validation**: Forms and API responses are strictly validated on the client side using `zod`.
+This section outlines the capabilities of the console UI.
 
-## Platform Routing
+- **Performance**: Bootstrapped with Vite and React 19 Compiler plugins for rendering performance.
+- **Design**: Built using `@base-ui/react` and Tailwind CSS, with dynamic theming support.
+- **Reactive data**: Uses TanStack Query to provide optimistic updates, caching, and background data synchronization.
+- **Type-safe validation**: Forms and API responses validate strictly on the client side using `zod`.
+
+## Platform routing
 
 The console maps strictly to the platform's security boundaries:
-- `/login`: The secure root login page for platform administrators.
-- `/secrets`: A dedicated interface to generate, view, and rotate API keys required by external portfolio frontends.
-- `/apps`: A navigational hub linking to other secured platform modules (e.g., the Portfolio Manager).
 
-## Getting Started
+- `/login`: The secure root login page for platform administrators
+- `/secrets`: A dedicated interface to generate, view, and rotate API keys required by external portfolio frontends
+- `/apps`: A navigational hub linking to other secured platform modules
+
+## Getting started
+
+This section explains how to run the console UI locally.
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) is required to manage dependencies and run scripts efficiently.
+- [Bun](https://bun.sh/) to manage dependencies and run scripts
 
 ### Configuration
 
-The frontend relies on the following environment variables to correctly route requests to the backend gateway and cross-link to other UI portals. You should export these in your shell environment.
+Export these variables directly in your shell environment:
 
 | Variable | Description | Required |
 | :--- | :--- | :---: |
-| `VITE_AUTH_API_URL` | Endpoint for the public Auth API routes | **Yes** |
-| `VITE_MANAGER_API_URL` | Endpoint for the public Manager API routes | **Yes** |
-| `VITE_MANAGER_URL` | Base URL of the deployed Manager UI (used for cross-portal navigation) | **Yes** |
-| `VITE_MODE` | Specifies the current environment mode (e.g., `development`) | No |
+| `VITE_AUTH_API_URL` | Endpoint for the public auth API routes | **Yes** |
+| `VITE_MANAGER_API_URL` | Endpoint for the public manager API routes | **Yes** |
+| `VITE_MANAGER_URL` | Base URL of the deployed manager UI | **Yes** |
+| `VITE_MODE` | Specifies the current environment mode | No |
 
-### Running the Service
+### Running locally
 
-Install dependencies and start the Vite development server:
+Install dependencies and start the development server:
 
 ```bash
 bun install
 bun run dev
 ```
 
-### Building for Production
+### Build for production
 
-To compile the application into static HTML/CSS/JS assets for deployment:
+Compile the application into static HTML, CSS, and JS assets for deployment:
 
 ```bash
 bun run build
