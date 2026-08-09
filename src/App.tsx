@@ -1,11 +1,6 @@
 import { Suspense, lazy } from "react";
 
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import {
   QueryClient,
   QueryClientProvider,
@@ -32,7 +27,8 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onSuccess: (data: unknown, query) => {
       const meta = query.meta as Record<string, unknown> | undefined;
-      if (meta?.onSuccess && typeof meta.onSuccess === "function") meta.onSuccess(data);
+      if (meta?.onSuccess && typeof meta.onSuccess === "function")
+        meta.onSuccess(data);
       if (meta?.invalidateKey && Array.isArray(meta.invalidateKey)) {
         for (const key of meta.invalidateKey) {
           queryClient.invalidateQueries({ queryKey: key });
@@ -48,7 +44,8 @@ const queryClient = new QueryClient({
         if (status === 401 || status === 0) {
           if (!meta?.skipAuthErrorHandling) {
             queryClient.clear();
-            if (meta?.logout && typeof meta.logout === "function") meta.logout();
+            if (meta?.logout && typeof meta.logout === "function")
+              meta.logout();
             toast.error(message, { toasterId: "login" });
             window.location.href = `/login`;
             return;

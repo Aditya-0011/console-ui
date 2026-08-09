@@ -16,10 +16,12 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL;
 const MANAGER_API_URL = import.meta.env.VITE_MANAGER_API_URL;
+const WALLET_API_URL = import.meta.env.VITE_WALLET_API_URL;
 
 const appApiMapping: ServiceApiMapping = {
   auth: AUTH_API_URL,
   manager: MANAGER_API_URL,
+  wallet: WALLET_API_URL,
 };
 
 async function fetcher<Request, Response>(
@@ -125,7 +127,7 @@ export function useDataMutation<Request, Response>(
     onError: (error) => {
       if (error instanceof FetchError) {
         const currentPath = window.location.pathname.slice(1);
-        
+
         if (error.status === 401 || error.status === 0) {
           queryClient.clear();
           logout();

@@ -57,12 +57,14 @@ This section explains how to run the console UI locally.
 
 Export these variables directly in your shell environment:
 
-| Variable | Description | Required |
-| :--- | :--- | :---: |
-| `VITE_AUTH_API_URL` | Endpoint for the public auth API routes | **Yes** |
-| `VITE_MANAGER_API_URL` | Endpoint for the public manager API routes | **Yes** |
-| `VITE_MANAGER_URL` | Base URL of the deployed manager UI | **Yes** |
-| `VITE_MODE` | Specifies the current environment mode | No |
+| Variable               | Description                                | Required |
+| :--------------------- | :----------------------------------------- | :------: |
+| `VITE_AUTH_API_URL`    | Endpoint for the public auth API routes    | **Yes**  |
+| `VITE_MANAGER_API_URL` | Endpoint for the public manager API routes | **Yes**  |
+| `VITE_MANAGER_URL`     | Base URL of the deployed manager UI        | **Yes**  |
+| `VITE_WALLET_API_URL`  | Endpoint for the public wallet API routes  | **Yes**  |
+| `VITE_WALLET_URL`      | Base URL of the deployed wallet UI         | **Yes**  |
+| `VITE_MODE`            | Specifies the current environment mode     |    No    |
 
 ### Running locally
 

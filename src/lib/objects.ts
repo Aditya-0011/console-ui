@@ -27,13 +27,13 @@ export type GetKeyResponse = z.infer<typeof GetKeyResponseSchema>;
 export const RequestMethodSchema = z.enum(["GET", "POST"]);
 export type RequestMethod = z.infer<typeof RequestMethodSchema>;
 
-export const ServiceListSchema = z.enum(["auth", "manager"]);
+export const ServiceListSchema = z.enum(["auth", "manager", "wallet"]);
 export type ServiceList = z.infer<typeof ServiceListSchema>;
 
 export const ServiceApiMappingSchema = z.record(ServiceListSchema, z.string());
 export type ServiceApiMapping = z.infer<typeof ServiceApiMappingSchema>;
 
-export const AppListSchema = z.enum(["Portfolio", "Manager"]);
+export const AppListSchema = z.enum(["Portfolio", "Manager", "Wallet"]);
 export type AppList = z.infer<typeof AppListSchema>;
 
 export const AppUrlMappingSchema = z.object({

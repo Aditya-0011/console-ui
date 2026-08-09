@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 
 const MANAGER_URL = import.meta.env.VITE_MANAGER_URL;
+const WALLET_URL = import.meta.env.VITE_WALLET_URL;
 
 export const appUrlMapping: AppUrlMapping[] = [
   {
@@ -23,6 +24,11 @@ export const appUrlMapping: AppUrlMapping[] = [
     name: "Manager",
     url: MANAGER_URL,
     description: "PMS for adityapunmiya.com",
+  },
+  {
+    name: "Wallet",
+    url: WALLET_URL,
+    description: "Expense ledger for Aditya",
   },
 ];
 
