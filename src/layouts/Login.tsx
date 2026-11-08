@@ -1,28 +1,25 @@
-import { useEffect } from "react";
-import { Outlet, useNavigate, useSearchParams } from "react-router";
-import { Toaster } from "sonner";
+import { Navigate, Outlet, useLocation, useSearchParams } from "react-router";
 
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginLayout() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-
+  const { isAuthenticated, mustChangePassword } = useAuth();
   const [searchParams] = useSearchParams();
+  const { search } = useLocation();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      const redirectTarget = searchParams.get("redirect");
-      if (!redirectTarget) {
-        navigate("/", { replace: true });
-      }
-    }
-  }, [isAuthenticated, navigate, searchParams]);
+  if (isAuthenticated && mustChangePassword) {
+    return <Navigate to={`/welcome${search}`} replace />;
+  }
+
+  // With ?redirect= the user came from another app whose session failed, so
+  // keep the form visible and let them log in again.
+  if (isAuthenticated && !searchParams.get("redirect")) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
-    <div className="h-screen bg-neutral-950">
-      <Toaster id="login" richColors position="top-right" />
+    <main className="h-screen bg-neutral-950">
       <Outlet />
-    </div>
+    </main>
   );
 }

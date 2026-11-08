@@ -1,6 +1,6 @@
-import { RefreshCw } from "lucide-react";
+import { useState } from "react";
 
-import { type SimpleResponse } from "@/lib/objects";
+import { RefreshCw } from "lucide-react";
 
 import {
   AlertDialog,
@@ -21,7 +21,7 @@ type RotateProps = {
   name: string;
   title: string;
   isRotating: boolean;
-  rotateAsync: (request: null) => Promise<SimpleResponse>;
+  onRotate: () => void;
 };
 
 export function Rotate({
@@ -29,21 +29,30 @@ export function Rotate({
   name,
   title,
   isRotating,
-  rotateAsync,
+  onRotate,
 }: RotateProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
           <Button
             variant="ghost"
             size="icon-sm"
             title={title}
+            aria-label={title}
+            disabled={isRotating}
             className="text-red-500 hover:bg-red-500/10 hover:text-red-600 hover:ring hover:ring-red-500"
           />
         }
       >
-        <RefreshCw className="size-4" />
+        <RefreshCw
+          aria-hidden="true"
+          className={
+            isRotating ? "animate-spin motion-reduce:animate-none" : ""
+          }
+        />
       </AlertDialogTrigger>
       <AlertDialogContent className="border border-red-500">
         <AlertDialogHeader>
@@ -60,7 +69,10 @@ export function Rotate({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="bg-neutral-950! text-red-500 hover:bg-red-500/10! hover:text-red-600 hover:ring hover:ring-red-500"
-            onClick={() => rotateAsync(null)}
+            onClick={() => {
+              onRotate();
+              setOpen(false);
+            }}
             disabled={isRotating}
           >
             Rotate

@@ -1,20 +1,19 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { SquareChevronRight, Eye, EyeOff } from "lucide-react";
+import { SquareChevronRight } from "lucide-react";
 
 import { useDataMutation } from "@/api/handler";
 import { useAuth } from "@/contexts/AuthContext";
 
 import {
   LoginRequestSchema,
-  AppListSchema,
+  PASSWORD_MAX_LENGTH,
+  type Identity,
   type LoginRequest,
-  type SimpleResponse,
 } from "@/lib/objects";
-import { appUrlMapping } from "@/components/pages/apps/List";
+import { followProjectRedirect } from "@/lib/redirect";
 import { cn } from "@/lib/utils";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,41 +24,25 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export function Form({ className, ...props }: React.ComponentProps<"div">) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
   const redirectTarget = searchParams.get("redirect");
 
-  const { mutateAsync, isPending } = useDataMutation<
-    LoginRequest,
-    SimpleResponse
-  >("auth", "/login", false, {
-    onSuccess: () => {
-      login();
-      if (redirectTarget) {
-        const parsed = AppListSchema.safeParse(redirectTarget);
-        if (parsed.success && parsed.data !== "Portfolio") {
-          const app = appUrlMapping.find((a) => a.name === parsed.data);
-          if (app) {
-            const url = new URL(app.url);
-            url.searchParams.set("auth", "success");
-            window.location.href = url.toString();
-            return;
-          }
-        }
-      }
-      navigate("/", { replace: true });
-    },
-  });
+  const { mutateAsync, isPending } = useDataMutation<LoginRequest, Identity>(
+    "auth",
+    "/login",
+    false,
+    // 401 here means bad credentials / expired temporary password / disabled
+    // account; the server's message is shown as a toast, no session handling.
+    { skipAuthErrorHandling: true },
+  );
 
   const { Field: FormField, handleSubmit } = useForm({
     defaultValues: {
@@ -70,34 +53,53 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
       onSubmit: LoginRequestSchema,
     },
     onSubmit: async ({ value }) => {
-      if (redirectTarget) {
-        const parsed = AppListSchema.safeParse(redirectTarget);
-        if (!parsed.success || parsed.data === "Portfolio") {
-          toast.error("Invalid redirect target application.", {
-            toasterId: "root",
-          });
-          return;
-        }
+      let identity: Identity;
+      try {
+        identity = await mutateAsync({
+          email: value.email.trim(),
+          password: value.password,
+        });
+      } catch {
+        return; // Reported by the global mutation error handler.
       }
-      await mutateAsync(value);
+
+      // Never show one user's cached data to the next.
+      queryClient.clear();
+      login(identity);
+
+      // A temporary password routes to /welcome (LoginLayout keeps ?redirect=).
+      if (identity.must_change_password) return;
+
+      if (redirectTarget) {
+        const leaving = await followProjectRedirect(
+          redirectTarget,
+          identity,
+          searchParams.get("next"),
+        );
+        if (leaving) return;
+      }
+      navigate("/", { replace: true });
     },
   });
-
-  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className={cn("flex-col gap-6", className)} {...props}>
       <Card className="border-none bg-inherit ring-0">
         <CardContent>
           <div className="mb-8 flex items-center justify-center">
-            <SquareChevronRight className="size-10 text-lime-500" />
+            <SquareChevronRight
+              aria-hidden="true"
+              className="size-10 text-lime-500"
+            />
           </div>
+          <h1 className="sr-only">Log in</h1>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit();
             }}
             id="login-form"
+            noValidate
           >
             <FieldGroup>
               <FormField
@@ -113,7 +115,8 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
                         name={field.name}
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        autoComplete="off"
+                        autoComplete="username"
+                        spellCheck={false}
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         type="email"
@@ -134,36 +137,26 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
                     field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-between">
                         <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                        <Link
+                          to="/reset"
+                          className="text-xs text-lime-500 underline-offset-2 hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
                       </div>
-                      <InputGroup className="rounded-md has-[[data-slot=input-group-control]:focus-visible]:border-lime-500 has-[[data-slot=input-group-control]:focus-visible]:ring-0 has-[[data-slot=input-group-control]:focus-visible]:ring-lime-500">
-                        <InputGroupInput
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          autoComplete="off"
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          type={showPassword ? "text" : "password"}
-                          required
-                        />
-                        <InputGroupAddon align="inline-end">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            className="text-lime-600 hover:bg-transparent hover:text-lime-500"
-                            onClick={() => setShowPassword(!showPassword)}
-                            aria-label={
-                              showPassword ? "Hide password" : "Show password"
-                            }
-                          >
-                            {showPassword ? <Eye /> : <EyeOff />}
-                          </Button>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <PasswordInput
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        autoComplete="current-password"
+                        maxLength={PASSWORD_MAX_LENGTH}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        required
+                      />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
