@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
 
 import { Plus, X } from "lucide-react";
 
@@ -30,34 +31,35 @@ type OriginsProps = {
   onSave: (origins: string[]) => void;
 };
 
+function domainError(raw: string, origins: string[]): string | undefined {
+  const origin = toOrigin(raw);
+  if (!origin) {
+    return "Enter a domain like xyz.com or https://xyz.com (http only for localhost).";
+  }
+  if (origins.includes(origin)) return `${origin} is already listed.`;
+  if (origins.length >= MAX_ORIGINS) return `At most ${MAX_ORIGINS} domains.`;
+  return undefined;
+}
+
 export function Origins({ saved, isSaving, onSave }: OriginsProps) {
   const [origins, setOrigins] = useState(saved);
-  const [draft, setDraft] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   const dirty =
     origins.length !== saved.length || origins.some((o, i) => o !== saved[i]);
 
-  const add = () => {
-    const origin = toOrigin(draft);
-    if (!origin) {
-      setError(
-        "Enter a domain like xyz.com or https://xyz.com (http only for localhost).",
-      );
-      return;
-    }
-    if (origins.includes(origin)) {
-      setError(`${origin} is already listed.`);
-      return;
-    }
-    if (origins.length >= MAX_ORIGINS) {
-      setError(`At most ${MAX_ORIGINS} domains.`);
-      return;
-    }
-    setOrigins([...origins, origin]);
-    setDraft("");
-    setError(null);
-  };
+  const {
+    Field: FormField,
+    handleSubmit,
+    reset,
+  } = useForm({
+    defaultValues: { domain: "" },
+    onSubmit: ({ value }) => {
+      const origin = toOrigin(value.domain);
+      if (!origin) return;
+      setOrigins([...origins, origin]);
+      reset();
+    },
+  });
 
   return (
     <section
@@ -77,40 +79,62 @@ export function Origins({ saved, isSaving, onSave }: OriginsProps) {
       </div>
 
       <form
-        className="flex gap-2"
+        className="flex flex-col gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          add();
+          handleSubmit();
         }}
         noValidate
       >
-        <label htmlFor="origin-input" className="sr-only">
-          Portfolio domain
-        </label>
-        <Input
-          id="origin-input"
-          value={draft}
-          onChange={(e) => {
-            setDraft(e.target.value);
-            setError(null);
+        <FormField
+          name="domain"
+          validators={{
+            onSubmit: ({ value }) => domainError(value, origins),
           }}
-          placeholder="https://xyz.com"
-          inputMode="url"
-          autoComplete="off"
-          spellCheck={false}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "origin-error" : undefined}
+          children={(field) => {
+            const error = field.state.meta.errors[0];
+            return (
+              <>
+                <div className="flex gap-2">
+                  <label htmlFor="origin-input" className="sr-only">
+                    Portfolio domain
+                  </label>
+                  <Input
+                    id="origin-input"
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="https://xyz.com"
+                    inputMode="url"
+                    autoComplete="off"
+                    spellCheck={false}
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={error ? "origin-error" : undefined}
+                  />
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="rounded-md"
+                  >
+                    <Plus aria-hidden="true" />
+                    Add
+                  </Button>
+                </div>
+                {error && (
+                  <p
+                    id="origin-error"
+                    role="alert"
+                    className="text-sm text-red-400"
+                  >
+                    {error}
+                  </p>
+                )}
+              </>
+            );
+          }}
         />
-        <Button type="submit" variant="outline" className="rounded-md">
-          <Plus aria-hidden="true" />
-          Add
-        </Button>
       </form>
-      {error && (
-        <p id="origin-error" role="alert" className="text-sm text-red-400">
-          {error}
-        </p>
-      )}
 
       {origins.length === 0 ? (
         <p className="text-muted-foreground text-sm">
@@ -149,7 +173,7 @@ export function Origins({ saved, isSaving, onSave }: OriginsProps) {
             className="rounded-md"
             onClick={() => {
               setOrigins(saved);
-              setError(null);
+              reset();
             }}
           >
             Discard

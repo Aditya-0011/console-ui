@@ -2,7 +2,7 @@
 
 The root administrative dashboard for managing the platform.
 
-[![React Version](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![React Version](https://img.shields.io/badge/React-19.3-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4.3-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
@@ -18,6 +18,7 @@ This section explains the technologies and physical layout of the console UI.
 - **Package manager**: Managed and executed using `bun`
 - **Styling**: Styled with Tailwind CSS v4, utilizing `shadcn` tooling and `@base-ui/react` primitives
 - **State**: Uses `@tanstack/react-query` for asynchronous state management and `@tanstack/react-form` for complex form handling
+- **Data Grids**: The admin Users table uses `@tanstack/react-table` with email, role, and status filters
 - **Routing**: Client-side navigation handled by React Router v8
 
 ### Project structure
@@ -33,17 +34,21 @@ This section explains the technologies and physical layout of the console UI.
 This section outlines the capabilities of the console UI.
 
 - **Performance**: Bootstrapped with Vite and React 19 Compiler plugins for rendering performance.
-- **Design**: Built using `@base-ui/react` and Tailwind CSS, with dynamic theming support.
-- **Reactive data**: Uses TanStack Query to provide optimistic updates, caching, and background data synchronization.
+- **Design**: Built using `@base-ui/react` and Tailwind CSS, with a dark-only theme. Tables stack into cards below 1280px.
+- **Reactive data**: Uses TanStack Query to provide caching, background data synchronization, and invalidation after mutations.
 - **Type-safe validation**: Forms and API responses validate strictly on the client side using `zod`.
 
 ## Platform routing
 
 The console maps strictly to the platform's security boundaries:
 
-- `/login`: The secure root login page for platform administrators
-- `/secrets`: A dedicated interface to generate, view, and rotate API keys required by external portfolio frontends
-- `/apps`: A navigational hub linking to other secured platform modules
+- `/login`: The secure root login page for all platform users
+- `/reset`: Password reset using a backup code
+- `/welcome`: First-login flow to choose a new password and save backup codes
+- `/`: A navigational hub linking to other secured platform modules (`/apps` redirects here)
+- `/security`: Password change, backup codes, and active sessions
+- `/api-key`: A dedicated interface to generate, view, rotate, and revoke API keys required by external portfolio frontends, and manage their allowed origins (`/secrets` redirects here)
+- `/admin/users` and `/admin/projects`: Administrator-only user and project management
 
 ## Getting started
 
@@ -57,14 +62,9 @@ This section explains how to run the console UI locally.
 
 Export these variables directly in your shell environment:
 
-| Variable               | Description                                | Required |
-| :--------------------- | :----------------------------------------- | :------: |
-| `VITE_AUTH_API_URL`    | Endpoint for the public auth API routes    | **Yes**  |
-| `VITE_MANAGER_API_URL` | Endpoint for the public manager API routes | **Yes**  |
-| `VITE_MANAGER_URL`     | Base URL of the deployed manager UI        | **Yes**  |
-| `VITE_WALLET_API_URL`  | Endpoint for the public wallet API routes  | **Yes**  |
-| `VITE_WALLET_URL`      | Base URL of the deployed wallet UI         | **Yes**  |
-| `VITE_MODE`            | Specifies the current environment mode     |    No    |
+| Variable            | Description                             | Required |
+| :------------------ | :-------------------------------------- | :------: |
+| `VITE_AUTH_API_URL` | Endpoint for the public auth API routes | **Yes**  |
 
 ### Running locally
 

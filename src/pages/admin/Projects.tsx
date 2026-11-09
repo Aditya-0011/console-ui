@@ -75,7 +75,7 @@ export default function Projects() {
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-neutral-950/20">
-        <Table>
+        <Table className="table-stack">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent">
               <TableHead className="pl-4">Name</TableHead>
@@ -100,24 +100,33 @@ export default function Projects() {
                 const Icon = projectIcon(project.icon);
                 return (
                   <TableRow key={project.id} className="border-white/5">
-                    <TableCell className="pl-4">
-                      <div className="flex items-center gap-2">
-                        <Icon
-                          aria-hidden="true"
-                          className="size-4 text-lime-500"
-                        />
-                        <span className="font-medium">{project.name}</span>
+                    <TableCell className="pl-4" data-label="Name">
+                      <div>
+                        <div className="flex items-center justify-end gap-2 xl:justify-start">
+                          <Icon
+                            aria-hidden="true"
+                            className="size-4 text-lime-500"
+                          />
+                          <span className="font-medium">{project.name}</span>
+                        </div>
+                        {project.description && (
+                          <p className="text-muted-foreground mt-1 max-w-72 text-xs xl:truncate">
+                            {project.description}
+                          </p>
+                        )}
                       </div>
-                      {project.description && (
-                        <p className="text-muted-foreground mt-1 max-w-72 truncate text-xs">
-                          {project.description}
-                        </p>
-                      )}
                     </TableCell>
-                    <TableCell className="font-mono text-xs" translate="no">
+                    <TableCell
+                      className="font-mono text-xs"
+                      data-label="Slug"
+                      translate="no"
+                    >
                       {project.slug}
                     </TableCell>
-                    <TableCell className="max-w-56 truncate text-xs">
+                    <TableCell
+                      className="max-w-56 truncate text-xs"
+                      data-label="URL"
+                    >
                       <a
                         href={project.url}
                         target="_blank"
@@ -128,10 +137,13 @@ export default function Projects() {
                         {project.url}
                       </a>
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Status">
                       <StatusBadge status={project.status} />
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
+                    <TableCell
+                      className="text-muted-foreground text-xs"
+                      data-label="Updated"
+                    >
                       {formatTimestamp(project.updated_at)}
                     </TableCell>
                     <TableCell className="pr-4">

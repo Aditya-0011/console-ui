@@ -117,7 +117,7 @@ export function Sessions() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="table-stack">
               <TableHeader>
                 <TableRow className="border-white/10 hover:bg-transparent">
                   <TableHead>Device</TableHead>
@@ -132,8 +132,8 @@ export function Sessions() {
               <TableBody>
                 {sessions.map((session) => (
                   <TableRow key={session.id} className="border-white/5">
-                    <TableCell>
-                      <div className="flex flex-wrap items-center gap-2">
+                    <TableCell data-label="Device">
+                      <div className="flex flex-wrap items-center justify-end gap-2 xl:justify-start">
                         <span title={session.user_agent}>
                           {describeUserAgent(session.user_agent)}
                         </span>
@@ -142,13 +142,23 @@ export function Sessions() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs" translate="no">
+                    <TableCell
+                      className="font-mono text-xs wrap-anywhere whitespace-normal"
+                      data-label="IP"
+                      translate="no"
+                    >
                       {session.ip || "—"}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
+                    <TableCell
+                      className="text-muted-foreground text-xs"
+                      data-label="Signed in"
+                    >
                       {formatTimestamp(session.created_at)}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
+                    <TableCell
+                      className="text-muted-foreground text-xs"
+                      data-label="Last active"
+                    >
                       {formatTimestamp(session.last_seen_at)}
                     </TableCell>
                     <TableCell className="text-right">

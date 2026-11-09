@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
 
 import { useDataMutation } from "@/api/handler";
 import {
@@ -36,8 +37,7 @@ export function EditProjectsDialog({
   disabledReason,
 }: EditProjectsDialogProps) {
   const [open, setOpen] = useState(false);
-  // Draft selection, re-seeded from the user every time the dialog opens.
-  const [selection, setSelection] = useState<number[]>(user.project_ids);
+  const formId = `edit-projects-form-${user.id}`;
 
   const { mutate, isPending } = useDataMutation<
     UserProjectsRequest,
@@ -50,11 +50,22 @@ export function EditProjectsDialog({
     },
   });
 
+  const {
+    Field: FormField,
+    handleSubmit,
+    reset,
+  } = useForm({
+    defaultValues: { project_ids: user.project_ids },
+    onSubmit: ({ value }) => {
+      mutate({ target_user_id: user.id, project_ids: value.project_ids });
+    },
+  });
+
   return (
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        if (isOpen) setSelection(user.project_ids);
+        if (isOpen) reset({ project_ids: user.project_ids });
         setOpen(isOpen);
       }}
     >
@@ -77,16 +88,31 @@ export function EditProjectsDialog({
         <DialogHeader>
           <DialogTitle>Project access</DialogTitle>
           <DialogDescription>
-            Choose which apps <span className="text-white">{user.email}</span>{" "}
-            can open. This replaces their current access.
+            Choose which apps{" "}
+            <span className="wrap-anywhere text-white">{user.email}</span> can
+            open. This replaces their current access.
           </DialogDescription>
         </DialogHeader>
-        <ProjectChecklist
-          projects={projects}
-          value={selection}
-          onChange={setSelection}
-          disabled={isPending}
-        />
+        <form
+          id={formId}
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          <FormField
+            name="project_ids"
+            children={(field) => (
+              <ProjectChecklist
+                projects={projects}
+                value={field.state.value}
+                onChange={(next) => field.handleChange(next)}
+                disabled={isPending}
+              />
+            )}
+          />
+        </form>
         <DialogFooter>
           <DialogClose
             render={<Button variant="outline" className="rounded-md" />}
@@ -94,11 +120,9 @@ export function EditProjectsDialog({
             Cancel
           </DialogClose>
           <Button
-            type="button"
+            type="submit"
+            form={formId}
             disabled={isPending}
-            onClick={() =>
-              mutate({ target_user_id: user.id, project_ids: selection })
-            }
             className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
           >
             {isPending ? "Saving..." : "Save access"}

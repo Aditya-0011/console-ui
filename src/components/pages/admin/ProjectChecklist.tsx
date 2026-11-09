@@ -30,7 +30,7 @@ export function ProjectChecklist({
   };
 
   return (
-    <FieldSet>
+    <FieldSet className="min-w-0">
       <FieldLegend variant="label">Project access</FieldLegend>
       {projects.length === 0 ? (
         <FieldDescription>
@@ -51,11 +51,14 @@ export function ProjectChecklist({
                 />
                 <label
                   htmlFor={id}
-                  className="flex min-w-0 items-center gap-2 text-sm"
+                  className="flex min-w-0 flex-1 items-center gap-2 text-sm"
                 >
-                  <Icon aria-hidden="true" className="size-4 text-lime-500" />
-                  <span className="truncate">{project.name}</span>
-                  <span className="text-muted-foreground font-mono text-xs">
+                  <Icon
+                    aria-hidden="true"
+                    className="size-4 shrink-0 text-lime-500"
+                  />
+                  <span className="min-w-0 truncate">{project.name}</span>
+                  <span className="text-muted-foreground min-w-0 truncate font-mono text-xs">
                     {project.slug}
                   </span>
                 </label>

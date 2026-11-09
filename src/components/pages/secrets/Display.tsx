@@ -33,8 +33,8 @@ export function Display({
   const hint = data.key_hint;
 
   return (
-    <section className="flex flex-col items-center gap-6">
-      <div className="max-w-lg text-center">
+    <section className="flex w-full max-w-lg flex-col items-center gap-6">
+      <div className="text-center">
         <h2 className="text-xl font-medium">Portfolio key</h2>
         <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
           Send it in the <Code>X-API-KEY</Code> header to read your Manager
@@ -49,7 +49,7 @@ export function Display({
         <div className="flex w-full max-w-lg flex-col items-center gap-3">
           <div className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-800 bg-neutral-900/50 p-2 pl-4 font-mono text-sm text-lime-400 sm:gap-4 sm:pl-6">
             <span
-              className="overflow-hidden tracking-widest whitespace-nowrap"
+              className="min-w-0 overflow-hidden tracking-widest whitespace-nowrap"
               aria-label={`Key starting with ${hint}`}
               translate="no"
             >
