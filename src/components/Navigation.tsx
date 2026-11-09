@@ -25,6 +25,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 type NavigationOption = {
@@ -54,6 +55,8 @@ function NavGroup({
   items: NavigationOption[];
   pathname: string;
 }) {
+  const { setOpenMobile } = useSidebar();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="mb-2 text-lg text-neutral-400 group-data-[collapsible=icon]:mb-0">
@@ -71,6 +74,7 @@ function NavGroup({
                   className="gap-4 text-base hover:bg-neutral-800"
                   render={
                     <Link
+                      onClick={() => setOpenMobile(false)}
                       to={item.url}
                       aria-current={isActive ? "page" : undefined}
                     />
