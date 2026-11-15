@@ -8,13 +8,13 @@ import {
 } from "@/lib/objects";
 import { projectIcon } from "@/lib/project-icons";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { StatusPill } from "@/components/StatusPill";
 
 function StatusBadge({
   status,
@@ -25,13 +25,13 @@ function StatusBadge({
 }) {
   if (status === ProjectStatus.Maintenance) {
     return (
-      <Badge className="bg-amber-500/15 text-amber-400">
-        {PROJECT_STATUS_LABELS[status]}
-      </Badge>
+      <StatusPill tone="warning">{PROJECT_STATUS_LABELS[status]}</StatusPill>
     );
   }
   if (status === ProjectStatus.Hidden && isAdmin) {
-    return <Badge variant="secondary">{PROJECT_STATUS_LABELS[status]}</Badge>;
+    return (
+      <StatusPill tone="neutral">{PROJECT_STATUS_LABELS[status]}</StatusPill>
+    );
   }
   return null;
 }
@@ -55,7 +55,7 @@ export function List({ projects }: { projects: Project[] }) {
           project.status === ProjectStatus.Maintenance && !isAdmin;
         const header = (
           <CardHeader className="p-4">
-            <CardTitle className="flex items-center gap-2 text-lg leading-tight tracking-tight">
+            <CardTitle className="flex items-center gap-2 text-lg leading-tight font-semibold tracking-tight">
               <Icon aria-hidden="true" className="size-5 text-lime-500" />
               <span className="min-w-0 truncate">{project.name}</span>
               <StatusBadge status={project.status} isAdmin={isAdmin} />
@@ -85,12 +85,12 @@ export function List({ projects }: { projects: Project[] }) {
             {unavailable ? (
               <Card
                 aria-disabled="true"
-                className="bg-muted/5 opacity-60 ring ring-white/10 backdrop-blur contain-content"
+                className="bg-muted/5 opacity-60 ring ring-white/10 contain-content"
               >
                 {header}
               </Card>
             ) : (
-              <Card className="group bg-muted/5 hover:bg-muted/50 ring ring-white/10 backdrop-blur transition-all contain-content hover:scale-[1.01] hover:text-lime-200 hover:ring-lime-600 motion-reduce:hover:scale-100">
+              <Card className="group bg-muted/5 hover:bg-muted/50 ring ring-white/10 transition-[scale,background-color,box-shadow] contain-content hover:scale-[1.01] hover:ring-white motion-reduce:hover:scale-100">
                 <a
                   href={project.url}
                   rel="noopener noreferrer"

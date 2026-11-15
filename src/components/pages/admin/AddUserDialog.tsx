@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 
-import { UserPlus } from "lucide-react";
+import { Save, UserPlus, X } from "lucide-react";
 
 import { useDataMutation } from "@/api/handler";
 import {
@@ -10,6 +10,13 @@ import {
   type AddUserResponse,
   type Project,
 } from "@/lib/objects";
+import {
+  cancelButtonClass,
+  formDialogClass,
+  inputClass,
+  primaryButtonClass,
+  submitButtonClass,
+} from "@/lib/styles";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -80,31 +87,29 @@ export function AddUserDialog({ projects, onCreated }: AddUserDialogProps) {
         if (!isOpen) reset();
       }}
     >
-      <DialogTrigger
-        render={
-          <Button className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500" />
-        }
-      >
+      <DialogTrigger render={<Button className={primaryButtonClass} />}>
         <UserPlus data-icon="inline-start" aria-hidden="true" />
         Add user
       </DialogTrigger>
-      <DialogContent className="border border-white bg-neutral-950">
-        <DialogHeader>
-          <DialogTitle>Add user</DialogTitle>
-          <DialogDescription>
-            A temporary password is generated and shown once. The user sets
-            their own password at first login.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className={formDialogClass} showCloseButton={false}>
         <form
-          id="add-user-form"
           noValidate
+          className="grid gap-6"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
         >
-          <FieldGroup>
+          <DialogHeader>
+            <DialogTitle>
+              Add <span className="text-lime-500">user</span>
+            </DialogTitle>
+            <DialogDescription>
+              A temporary password is generated and shown once. The user sets
+              their own password at first login.
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup className="mt-1">
             <FormField
               name="email"
               children={(field) => {
@@ -125,7 +130,7 @@ export function AddUserDialog({ projects, onCreated }: AddUserDialogProps) {
                       aria-invalid={isInvalid}
                       disabled={isPending}
                       required
-                      className="rounded-md focus-visible:border-lime-500 focus-visible:ring-0"
+                      className={inputClass}
                     />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -146,22 +151,29 @@ export function AddUserDialog({ projects, onCreated }: AddUserDialogProps) {
               )}
             />
           </FieldGroup>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cancelButtonClass}
+                />
+              }
+            >
+              <X className="size-4" aria-hidden="true" />
+              Cancel
+            </DialogClose>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className={submitButtonClass}
+            >
+              <Save className="size-4" aria-hidden="true" />
+              {isPending ? "Creating..." : "Create user"}
+            </Button>
+          </DialogFooter>
         </form>
-        <DialogFooter>
-          <DialogClose
-            render={<Button variant="outline" className="rounded-md" />}
-          >
-            Cancel
-          </DialogClose>
-          <Button
-            type="submit"
-            form="add-user-form"
-            disabled={isPending}
-            className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
-          >
-            {isPending ? "Creating..." : "Create user"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

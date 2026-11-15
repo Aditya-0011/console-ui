@@ -9,6 +9,7 @@ import {
   type SimpleResponse,
 } from "@/lib/objects";
 import { formatTimestamp } from "@/lib/time";
+import { secretDialogClass, submitButtonClass } from "@/lib/styles";
 
 import {
   AlertDialog,
@@ -19,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusPill } from "@/components/StatusPill";
 import { PasswordConfirmDialog } from "@/components/PasswordConfirmDialog";
 import { BackupCodesList } from "@/components/pages/security/BackupCodesList";
 
@@ -38,7 +40,11 @@ export function BackupCodes() {
   // Fresh codes live only in component state, dropped when the dialog closes.
   const [codes, setCodes] = useState<string[] | null>(null);
 
-  const { data: status, isLoading } = useDataQuery<null, RecoveryCodesStatus>(
+  const {
+    data: status,
+    isLoading,
+    refetch,
+  } = useDataQuery<null, RecoveryCodesStatus>(
     "auth",
     STATUS_KEY,
     "/recovery-codes",
@@ -76,11 +82,12 @@ export function BackupCodes() {
     };
 
   const remaining = status?.remaining ?? 0;
+  const isReady = status !== undefined;
 
   return (
     <Card className="bg-muted/5 ring ring-white/10">
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="text-lg leading-tight font-semibold tracking-tight">
           <h2>Backup codes</h2>
         </CardTitle>
         <CardDescription>
@@ -92,11 +99,23 @@ export function BackupCodes() {
         <div aria-live="polite" className="text-sm">
           {isLoading ? (
             <Skeleton className="h-5 w-56" />
+          ) : !status ? (
+            <div className="flex items-center justify-between gap-2 text-red-400">
+              Could not load backup code status.
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-md"
+                onClick={() => void refetch()}
+              >
+                Retry
+              </Button>
+            </div>
           ) : remaining > 0 ? (
             <p className="flex flex-wrap items-center gap-2">
-              <Badge variant={remaining <= 3 ? "destructive" : "secondary"}>
+              <StatusPill tone={remaining <= 3 ? "danger" : "neutral"}>
                 {remaining} of {TOTAL_CODES} remaining
-              </Badge>
+              </StatusPill>
               {status?.generated_at && (
                 <span className="text-muted-foreground text-xs">
                   Generated {formatTimestamp(status.generated_at)}
@@ -111,37 +130,39 @@ export function BackupCodes() {
           )}
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
-          {remaining > 0 && (
+        {isReady && (
+          <div className="flex flex-wrap justify-end gap-2">
+            {remaining > 0 && (
+              <PasswordConfirmDialog
+                id="destroy-codes"
+                triggerLabel="Destroy all codes"
+                title="Destroy all backup codes?"
+                description="Without backup codes the only way to recover a forgotten password is asking the administrator for a temporary one."
+                confirmLabel="Destroy codes"
+                pendingLabel="Destroying..."
+                destructive
+                isPending={destroy.isPending}
+                onConfirm={run(destroy)}
+              />
+            )}
             <PasswordConfirmDialog
-              id="destroy-codes"
-              triggerLabel="Destroy all codes"
-              title="Destroy all backup codes?"
-              description="Without backup codes the only way to recover a forgotten password is asking the administrator for a temporary one."
-              confirmLabel="Destroy codes"
-              pendingLabel="Destroying..."
-              destructive
-              isPending={destroy.isPending}
-              onConfirm={run(destroy)}
+              id="generate-codes"
+              triggerLabel={
+                remaining > 0 ? "Generate new codes" : "Generate codes"
+              }
+              title="Generate new backup codes"
+              description={
+                remaining > 0
+                  ? "Your current codes stop working as soon as the new set is created."
+                  : "You will see 10 single-use codes once. Store them somewhere safe."
+              }
+              confirmLabel="Generate"
+              pendingLabel="Generating..."
+              isPending={generate.isPending}
+              onConfirm={run(generate)}
             />
-          )}
-          <PasswordConfirmDialog
-            id="generate-codes"
-            triggerLabel={
-              remaining > 0 ? "Generate new codes" : "Generate codes"
-            }
-            title="Generate new backup codes"
-            description={
-              remaining > 0
-                ? "Your current codes stop working as soon as the new set is created."
-                : "You will see 10 single-use codes once. Store them somewhere safe."
-            }
-            confirmLabel="Generate"
-            pendingLabel="Generating..."
-            isPending={generate.isPending}
-            onConfirm={run(generate)}
-          />
-        </div>
+          </div>
+        )}
       </CardContent>
 
       <AlertDialog
@@ -153,7 +174,7 @@ export function BackupCodes() {
           }
         }}
       >
-        <AlertDialogContent className="border border-lime-500 sm:max-w-lg">
+        <AlertDialogContent className={secretDialogClass}>
           <AlertDialogHeader>
             <AlertDialogTitle>Save your backup codes</AlertDialogTitle>
             <AlertDialogDescription>
@@ -164,6 +185,7 @@ export function BackupCodes() {
           {codes && <BackupCodesList codes={codes} />}
           <AlertDialogFooter>
             <AlertDialogAction
+              className={submitButtonClass}
               onClick={() => {
                 setCodes(null);
                 generate.reset();

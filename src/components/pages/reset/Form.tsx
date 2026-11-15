@@ -13,6 +13,7 @@ import {
   type ResetPasswordRequest,
   type SimpleResponse,
 } from "@/lib/objects";
+import { inputClass, primaryButtonClass } from "@/lib/styles";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -25,9 +26,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/PasswordInput";
-
-const inputClass =
-  "rounded-md focus-visible:border-lime-500 focus-visible:ring-0 focus-visible:ring-lime-500";
 
 export function Form() {
   const navigate = useNavigate();
@@ -205,7 +203,7 @@ export function Form() {
                 type="submit"
                 form="reset-form"
                 disabled={isPending}
-                className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+                className={primaryButtonClass}
               >
                 {isPending ? "Resetting..." : "Reset password"}
               </Button>

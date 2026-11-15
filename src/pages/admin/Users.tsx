@@ -90,7 +90,7 @@ export default function Users() {
     <div className="mx-auto flex w-full flex-col gap-6 text-white">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold">Users</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">Users</h1>
           <p className="text-muted-foreground mt-1 text-xs">
             Accounts and the apps they can open
           </p>

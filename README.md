@@ -36,13 +36,13 @@ This section outlines the capabilities of the console UI.
 - **Performance**: Bootstrapped with Vite and React 19 Compiler plugins for rendering performance.
 - **Design**: Built using `@base-ui/react` and Tailwind CSS, with a dark-only theme. Tables stack into cards below 1280px.
 - **Reactive data**: Uses TanStack Query to provide caching, background data synchronization, and invalidation after mutations.
-- **Type-safe validation**: Forms and API responses validate strictly on the client side using `zod`.
+- **Type-safe validation**: Forms validate on the client with `zod`; API responses are typed but not runtime-validated.
 
 ## Platform routing
 
 The console maps strictly to the platform's security boundaries:
 
-- `/login`: The secure root login page for all platform users
+- `/login`: The secure root login page for all platform users. When a session expires, the console sends you here with `?next=<path>` and returns you to that page after login; only same-origin paths are accepted
 - `/reset`: Password reset using a backup code
 - `/welcome`: First-login flow to choose a new password and save backup codes
 - `/`: A navigational hub linking to other secured platform modules (`/apps` redirects here)

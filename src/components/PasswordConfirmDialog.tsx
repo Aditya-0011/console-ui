@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 
+import { Save, X } from "lucide-react";
+
 import { PASSWORD_MAX_LENGTH, PasswordConfirmFormSchema } from "@/lib/objects";
+import {
+  cancelButtonClass,
+  destructiveButtonClass,
+  destructiveFormDialogClass,
+  formDialogClass,
+  primaryButtonClass,
+  submitButtonClass,
+} from "@/lib/styles";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,11 +46,6 @@ type PasswordConfirmDialogProps = {
   onConfirm: (password: string) => Promise<boolean>;
 };
 
-const destructiveClass =
-  "rounded-md bg-neutral-950 text-red-500 ring ring-red-500/50 hover:bg-red-500/10 hover:text-red-400";
-const primaryClass =
-  "rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500";
-
 export function PasswordConfirmDialog({
   id,
   triggerLabel,
@@ -68,7 +74,6 @@ export function PasswordConfirmDialog({
     },
   });
 
-  const formId = `${id}-form`;
   const inputId = `${id}-password`;
 
   return (
@@ -84,32 +89,31 @@ export function PasswordConfirmDialog({
           <Button
             type="button"
             variant={destructive ? "outline" : "default"}
-            className={destructive ? destructiveClass : primaryClass}
+            className={
+              destructive ? destructiveButtonClass : primaryButtonClass
+            }
           />
         }
       >
         {triggerLabel}
       </DialogTrigger>
       <DialogContent
-        className={
-          destructive
-            ? "border border-red-500 bg-neutral-950"
-            : "border border-white bg-neutral-950"
-        }
+        className={destructive ? destructiveFormDialogClass : formDialogClass}
+        showCloseButton={false}
       >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
         <form
-          id={formId}
           noValidate
+          className="grid gap-6"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
         >
-          <FieldGroup>
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{description}</DialogDescription>
+          </DialogHeader>
+          <FieldGroup className="mt-1">
             <FormField
               name="password"
               children={(field) => {
@@ -140,22 +144,33 @@ export function PasswordConfirmDialog({
               }}
             />
           </FieldGroup>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cancelButtonClass}
+                />
+              }
+            >
+              <X className="size-4" aria-hidden="true" />
+              Cancel
+            </DialogClose>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className={
+                destructive
+                  ? cn("flex items-center gap-1.5", destructiveButtonClass)
+                  : submitButtonClass
+              }
+            >
+              {!destructive && <Save className="size-4" aria-hidden="true" />}
+              {isPending ? pendingLabel : confirmLabel}
+            </Button>
+          </DialogFooter>
         </form>
-        <DialogFooter>
-          <DialogClose
-            render={<Button variant="outline" className="rounded-md" />}
-          >
-            Cancel
-          </DialogClose>
-          <Button
-            type="submit"
-            form={formId}
-            disabled={isPending}
-            className={destructive ? destructiveClass : primaryClass}
-          >
-            {isPending ? pendingLabel : confirmLabel}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

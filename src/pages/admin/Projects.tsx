@@ -1,5 +1,7 @@
 import { toast } from "sonner";
 
+import { Trash2 } from "lucide-react";
+
 import { useDataMutation, useDataQuery } from "@/api/handler";
 import {
   PROJECT_STATUS_LABELS,
@@ -10,8 +12,9 @@ import {
 } from "@/lib/objects";
 import { projectIcon } from "@/lib/project-icons";
 import { formatTimestamp } from "@/lib/time";
+import { tableCellClass, tableHeadClass, tableRowClass } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -24,6 +27,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { Error } from "@/components/Error";
 import { Loading } from "@/components/Loading";
 import { ProjectFormDialog } from "@/components/pages/admin/ProjectFormDialog";
+import { StatusPill } from "@/components/StatusPill";
 
 const PROJECTS_KEY = ["admin", "projects"];
 const EMPTY_PROJECTS: Project[] = [];
@@ -31,12 +35,12 @@ const EMPTY_PROJECTS: Project[] = [];
 function StatusBadge({ status }: { status: Project["status"] }) {
   const label = PROJECT_STATUS_LABELS[status] ?? "Unknown";
   if (status === ProjectStatus.Active) {
-    return <Badge variant="secondary">{label}</Badge>;
+    return <StatusPill tone="success">{label}</StatusPill>;
   }
   if (status === ProjectStatus.Maintenance) {
-    return <Badge className="bg-amber-500/15 text-amber-400">{label}</Badge>;
+    return <StatusPill tone="warning">{label}</StatusPill>;
   }
-  return <Badge variant="outline">{label}</Badge>;
+  return <StatusPill tone="neutral">{label}</StatusPill>;
 }
 
 export default function Projects() {
@@ -66,7 +70,7 @@ export default function Projects() {
     <div className="mx-auto flex w-full flex-col gap-6 text-white">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold">Projects</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">Projects</h1>
           <p className="text-muted-foreground mt-1 text-xs">
             Apps listed in the Console and granted to users
           </p>
@@ -78,12 +82,12 @@ export default function Projects() {
         <Table className="table-stack">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead className="pl-4">Name</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead>URL</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Updated</TableHead>
-              <TableHead className="pr-4 text-right">
+              <TableHead className={cn(tableHeadClass, "pl-4")}>Name</TableHead>
+              <TableHead className={tableHeadClass}>Slug</TableHead>
+              <TableHead className={tableHeadClass}>URL</TableHead>
+              <TableHead className={tableHeadClass}>Status</TableHead>
+              <TableHead className={tableHeadClass}>Updated</TableHead>
+              <TableHead className={cn(tableHeadClass, "pr-4 text-right")}>
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
@@ -99,8 +103,11 @@ export default function Projects() {
               projects.map((project) => {
                 const Icon = projectIcon(project.icon);
                 return (
-                  <TableRow key={project.id} className="border-white/5">
-                    <TableCell className="pl-4" data-label="Name">
+                  <TableRow key={project.id} className={tableRowClass}>
+                    <TableCell
+                      className={cn(tableCellClass, "pl-4")}
+                      data-label="Name"
+                    >
                       <div>
                         <div className="flex items-center justify-end gap-2 xl:justify-start">
                           <Icon
@@ -117,14 +124,17 @@ export default function Projects() {
                       </div>
                     </TableCell>
                     <TableCell
-                      className="font-mono text-xs"
+                      className={cn(tableCellClass, "font-mono text-xs")}
                       data-label="Slug"
                       translate="no"
                     >
                       {project.slug}
                     </TableCell>
                     <TableCell
-                      className="max-w-56 truncate text-xs"
+                      className={cn(
+                        tableCellClass,
+                        "max-w-56 truncate text-xs",
+                      )}
                       data-label="URL"
                     >
                       <a
@@ -137,20 +147,24 @@ export default function Projects() {
                         {project.url}
                       </a>
                     </TableCell>
-                    <TableCell data-label="Status">
+                    <TableCell className={tableCellClass} data-label="Status">
                       <StatusBadge status={project.status} />
                     </TableCell>
                     <TableCell
-                      className="text-muted-foreground text-xs"
+                      className={cn(
+                        tableCellClass,
+                        "text-muted-foreground text-xs",
+                      )}
                       data-label="Updated"
                     >
                       {formatTimestamp(project.updated_at)}
                     </TableCell>
-                    <TableCell className="pr-4">
-                      <div className="flex justify-end gap-1">
+                    <TableCell className={cn(tableCellClass, "pr-4")}>
+                      <div className="flex items-center justify-end gap-1">
                         <ProjectFormDialog project={project} />
                         <ConfirmButton
                           label="Delete"
+                          icon={<Trash2 aria-hidden="true" />}
                           ariaLabel={`Delete ${project.name}`}
                           title={`Delete ${project.name}?`}
                           description="It disappears from every user's Apps page and all grants to it are removed. The app itself and its data are not affected."

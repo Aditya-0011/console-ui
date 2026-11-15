@@ -5,6 +5,11 @@ import { Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  destructiveActionClass,
+  inputClass,
+  primaryButtonClass,
+} from "@/lib/styles";
 
 const MAX_ORIGINS = 10;
 const ORIGIN_PATTERN =
@@ -74,7 +79,9 @@ export function Origins({ saved, isSaving, onSave }: OriginsProps) {
           Browsers may call the API with your key only from these sites.
           Server-side calls don't need an entry. A key used in the browser is
           visible to visitors, so it can only read your public content and send
-          messages.
+          messages. Leave this empty for a server-side site like the Portfolio:
+          adding any domain makes all its visitors share one message and chat
+          limit.
         </p>
       </div>
 
@@ -111,6 +118,7 @@ export function Origins({ saved, isSaving, onSave }: OriginsProps) {
                     spellCheck={false}
                     aria-invalid={error ? true : undefined}
                     aria-describedby={error ? "origin-error" : undefined}
+                    className={inputClass}
                   />
                   <Button
                     type="submit"
@@ -156,7 +164,7 @@ export function Origins({ saved, isSaving, onSave }: OriginsProps) {
                 size="icon-sm"
                 aria-label={`Remove ${origin}`}
                 onClick={() => setOrigins(origins.filter((o) => o !== origin))}
-                className="text-red-500 hover:bg-red-500/10 hover:text-red-400"
+                className={destructiveActionClass}
               >
                 <X aria-hidden="true" />
               </Button>
@@ -183,7 +191,7 @@ export function Origins({ saved, isSaving, onSave }: OriginsProps) {
           type="button"
           disabled={!dirty || isSaving}
           onClick={() => onSave(origins)}
-          className="rounded-md bg-lime-500 text-neutral-950 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+          className={primaryButtonClass}
         >
           {isSaving ? "Saving..." : "Save domains"}
         </Button>

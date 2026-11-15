@@ -10,13 +10,20 @@ import {
   type Column,
   type FilterFn,
 } from "@tanstack/react-table";
-import { Search } from "lucide-react";
+import { Ban, CircleCheck, KeyRound, Search, Trash2 } from "lucide-react";
 
 import { Role, UserStatus, type Project, type User } from "@/lib/objects";
 import { formatTimestamp } from "@/lib/time";
+import {
+  searchInputClass,
+  selectContentClass,
+  selectTriggerClass,
+  tableCellClass,
+  tableHeadClass,
+  tableRowClass,
+} from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -35,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { StatusPill } from "@/components/StatusPill";
 import { EditProjectsDialog } from "@/components/pages/admin/EditProjectsDialog";
 
 const ADMIN_LOCKED = "Administrator accounts can't be changed here";
@@ -106,12 +114,10 @@ const columns = helper.columns([
         <div className="flex flex-wrap items-center justify-end gap-2 xl:justify-start">
           <span translate="no">{user.email}</span>
           {user.id === table.options.meta!.currentUserId && (
-            <Badge variant="outline">You</Badge>
+            <StatusPill tone="neutral">You</StatusPill>
           )}
           {user.must_change_password && (
-            <Badge className="bg-amber-500/15 text-amber-400">
-              Pending first login
-            </Badge>
+            <StatusPill tone="warning">Pending first login</StatusPill>
           )}
         </div>
       );
@@ -123,9 +129,9 @@ const columns = helper.columns([
     cell: ({ row }) => {
       const isAdminRow = row.original.role === Role.Admin;
       return (
-        <Badge variant={isAdminRow ? "default" : "secondary"}>
+        <StatusPill tone={isAdminRow ? "accent" : "neutral"}>
           {isAdminRow ? "Admin" : "Tenant"}
-        </Badge>
+        </StatusPill>
       );
     },
   }),
@@ -135,9 +141,9 @@ const columns = helper.columns([
     cell: ({ row }) => {
       const isDisabled = row.original.status === UserStatus.Disabled;
       return (
-        <Badge variant={isDisabled ? "destructive" : "secondary"}>
+        <StatusPill tone={isDisabled ? "danger" : "success"}>
           {isDisabled ? "Disabled" : "Active"}
-        </Badge>
+        </StatusPill>
       );
     },
   }),
@@ -179,25 +185,35 @@ const columns = helper.columns([
       const isSelf = user.id === meta.currentUserId;
       const isDisabled = user.status === UserStatus.Disabled;
       return (
-        <div className="flex flex-wrap justify-end gap-1">
+        <div className="flex items-center justify-end gap-1">
           <EditProjectsDialog
             user={user}
             projects={meta.projects}
-            disabled={isAdminRow || meta.isBusy}
-            disabledReason={ADMIN_LOCKED}
+            disabled={meta.isBusy}
+            disabledReason={isAdminRow ? ADMIN_LOCKED : undefined}
           />
           <ConfirmButton
             label="Reset password"
+            icon={<KeyRound aria-hidden="true" />}
             ariaLabel={`Reset password for ${user.email}`}
             title="Reset password?"
             description={`${user.email} is signed out everywhere and gets a new temporary password that you share with them.`}
             confirmLabel="Reset password"
-            disabled={isSelf || meta.isBusy}
-            disabledReason="Use the Security page for your own password"
+            disabled={meta.isBusy}
+            disabledReason={
+              isSelf ? "Use the Security page for your own password" : undefined
+            }
             onConfirm={() => meta.onResetPassword(user)}
           />
           <ConfirmButton
             label={isDisabled ? "Enable" : "Disable"}
+            icon={
+              isDisabled ? (
+                <CircleCheck aria-hidden="true" />
+              ) : (
+                <Ban aria-hidden="true" />
+              )
+            }
             ariaLabel={`${isDisabled ? "Enable" : "Disable"} ${user.email}`}
             title={isDisabled ? "Enable account?" : "Disable account?"}
             description={
@@ -207,19 +223,20 @@ const columns = helper.columns([
             }
             confirmLabel={isDisabled ? "Enable" : "Disable"}
             destructive={!isDisabled}
-            disabled={isAdminRow || meta.isBusy}
-            disabledReason={ADMIN_LOCKED}
+            disabled={meta.isBusy}
+            disabledReason={isAdminRow ? ADMIN_LOCKED : undefined}
             onConfirm={() => meta.onToggleStatus(user)}
           />
           <ConfirmButton
             label="Delete"
+            icon={<Trash2 aria-hidden="true" />}
             ariaLabel={`Delete ${user.email}`}
             title="Delete user?"
             description={`${user.email} loses access immediately. Their Manager and Wallet data is not deleted.`}
             confirmLabel="Delete user"
             destructive
-            disabled={isAdminRow || meta.isBusy}
-            disabledReason={ADMIN_LOCKED}
+            disabled={meta.isBusy}
+            disabledReason={isAdminRow ? ADMIN_LOCKED : undefined}
             onConfirm={() => meta.onDelete(user)}
           />
         </div>
@@ -248,13 +265,20 @@ function FilterSelect({
         column?.setFilterValue(value === ALL ? undefined : Number(value));
       }}
     >
-      <SelectTrigger aria-label={label} className="w-full rounded-md sm:w-36">
+      <SelectTrigger
+        aria-label={label}
+        className={cn(selectTriggerClass, "sm:w-36")}
+      >
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className={selectContentClass}>
         <SelectGroup>
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              className="rounded-md"
+            >
               {option.label}
             </SelectItem>
           ))}
@@ -281,7 +305,7 @@ export function UsersTable({ users, ...meta }: UsersTableProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-        <div className="relative w-full sm:max-w-xs">
+        <div className="relative w-full sm:max-w-sm">
           <Search
             aria-hidden="true"
             className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
@@ -296,7 +320,7 @@ export function UsersTable({ users, ...meta }: UsersTableProps) {
             onChange={(e) =>
               emailColumn?.setFilterValue(e.target.value || undefined)
             }
-            className="rounded-md pl-8 focus-visible:border-lime-500 focus-visible:ring-0"
+            className={searchInputClass}
           />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex">
@@ -331,6 +355,7 @@ export function UsersTable({ users, ...meta }: UsersTableProps) {
                   <TableHead
                     key={header.id}
                     className={cn(
+                      tableHeadClass,
                       header.column.id === "email" && "pl-4",
                       header.column.id === "actions" && "pr-4 text-right",
                     )}
@@ -358,7 +383,7 @@ export function UsersTable({ users, ...meta }: UsersTableProps) {
               </TableRow>
             ) : (
               rows.map((row) => (
-                <TableRow key={row.id} className="border-white/5">
+                <TableRow key={row.id} className={tableRowClass}>
                   {row.getAllCells().map((cell) => (
                     <TableCell
                       key={cell.id}
@@ -367,7 +392,10 @@ export function UsersTable({ users, ...meta }: UsersTableProps) {
                           ? cell.column.columnDef.header
                           : undefined
                       }
-                      className={COLUMN_CLASSES[cell.column.id]}
+                      className={cn(
+                        tableCellClass,
+                        COLUMN_CLASSES[cell.column.id],
+                      )}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

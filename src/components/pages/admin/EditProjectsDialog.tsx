@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 
+import { FolderKanban, Save, X } from "lucide-react";
+
 import { useDataMutation } from "@/api/handler";
 import {
   type Project,
@@ -8,6 +10,12 @@ import {
   type User,
   type UserProjectsRequest,
 } from "@/lib/objects";
+import {
+  accentActionClass,
+  cancelButtonClass,
+  formDialogClass,
+  submitButtonClass,
+} from "@/lib/styles";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +29,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { LockedButton } from "@/components/ConfirmButton";
 import { ProjectChecklist } from "@/components/pages/admin/ProjectChecklist";
 
 type EditProjectsDialogProps = {
@@ -37,7 +46,7 @@ export function EditProjectsDialog({
   disabledReason,
 }: EditProjectsDialogProps) {
   const [open, setOpen] = useState(false);
-  const formId = `edit-projects-form-${user.id}`;
+  const label = `Edit project access for ${user.email}`;
 
   const { mutate, isPending } = useDataMutation<
     UserProjectsRequest,
@@ -61,6 +70,18 @@ export function EditProjectsDialog({
     },
   });
 
+  if (disabledReason) {
+    return (
+      <LockedButton
+        icon={<FolderKanban aria-hidden="true" />}
+        label="Projects"
+        ariaLabel={label}
+        reason={disabledReason}
+        className={accentActionClass}
+      />
+    );
+  }
+
   return (
     <Dialog
       open={open}
@@ -74,33 +95,35 @@ export function EditProjectsDialog({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="icon-sm"
             disabled={disabled}
-            title={disabled ? disabledReason : undefined}
-            aria-label={`Edit project access for ${user.email}`}
-            className="rounded-md text-lime-500 hover:bg-lime-500/10 hover:text-lime-400"
+            title="Project access"
+            aria-label={label}
+            className={accentActionClass}
           />
         }
       >
-        Projects
+        <FolderKanban aria-hidden="true" />
       </DialogTrigger>
-      <DialogContent className="border border-white bg-neutral-950">
-        <DialogHeader>
-          <DialogTitle>Project access</DialogTitle>
-          <DialogDescription>
-            Choose which apps{" "}
-            <span className="wrap-anywhere text-white">{user.email}</span> can
-            open. This replaces their current access.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className={formDialogClass} showCloseButton={false}>
         <form
-          id={formId}
           noValidate
+          className="grid gap-6"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
         >
+          <DialogHeader>
+            <DialogTitle>
+              Project <span className="text-lime-500">access</span>
+            </DialogTitle>
+            <DialogDescription>
+              Choose which apps{" "}
+              <span className="wrap-anywhere text-white">{user.email}</span> can
+              open. This replaces their current access.
+            </DialogDescription>
+          </DialogHeader>
           <FormField
             name="project_ids"
             children={(field) => (
@@ -112,22 +135,29 @@ export function EditProjectsDialog({
               />
             )}
           />
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cancelButtonClass}
+                />
+              }
+            >
+              <X className="size-4" aria-hidden="true" />
+              Cancel
+            </DialogClose>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className={submitButtonClass}
+            >
+              <Save className="size-4" aria-hidden="true" />
+              {isPending ? "Saving..." : "Save access"}
+            </Button>
+          </DialogFooter>
         </form>
-        <DialogFooter>
-          <DialogClose
-            render={<Button variant="outline" className="rounded-md" />}
-          >
-            Cancel
-          </DialogClose>
-          <Button
-            type="submit"
-            form={formId}
-            disabled={isPending}
-            className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
-          >
-            {isPending ? "Saving..." : "Save access"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

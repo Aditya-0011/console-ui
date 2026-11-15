@@ -12,7 +12,8 @@ import {
   type FirstLoginRequest,
   type RecoveryCodesResponse,
 } from "@/lib/objects";
-import { followProjectRedirect } from "@/lib/redirect";
+import { consoleNextPath, followProjectRedirect } from "@/lib/redirect";
+import { primaryButtonClass } from "@/lib/styles";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,7 +81,10 @@ export default function Welcome() {
       if (leaving) return;
     }
     completeFirstLogin();
-    navigate("/", { replace: true });
+    navigate(
+      consoleNextPath(redirectTarget ? null : searchParams.get("next")),
+      { replace: true },
+    );
   };
 
   return (
@@ -119,7 +123,7 @@ export default function Welcome() {
                 type="button"
                 disabled={!saved || isLeaving}
                 onClick={() => void handleContinue()}
-                className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+                className={primaryButtonClass}
               >
                 {isLeaving ? "Continuing..." : "Continue"}
               </Button>
@@ -175,7 +179,7 @@ export default function Welcome() {
                     type="submit"
                     form="welcome-form"
                     disabled={isPending}
-                    className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+                    className={primaryButtonClass}
                   >
                     {isPending ? "Saving..." : "Set password"}
                   </Button>

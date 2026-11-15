@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 
-import { Plus } from "lucide-react";
+import { Edit2, Plus, Save, X } from "lucide-react";
 
 import { useDataMutation } from "@/api/handler";
 import {
@@ -21,6 +21,17 @@ import {
   isProjectIconKey,
   projectIcon,
 } from "@/lib/project-icons";
+import {
+  accentActionClass,
+  cancelButtonClass,
+  formDialogClass,
+  inputClass,
+  primaryButtonClass,
+  selectContentClass,
+  selectTriggerClass,
+  submitButtonClass,
+} from "@/lib/styles";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -56,9 +67,6 @@ const STATUS_VALUES = [
   ProjectStatus.Maintenance,
   ProjectStatus.Hidden,
 ] as const;
-
-const inputClass =
-  "rounded-md focus-visible:border-lime-500 focus-visible:ring-0";
 
 type ProjectFormDialogProps = { project?: Project };
 
@@ -175,17 +183,18 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
             <Button
               type="button"
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               aria-label={`Edit ${project.name}`}
-              className="rounded-md text-lime-500 hover:bg-lime-500/10 hover:text-lime-400"
+              title={`Edit ${project.name}`}
+              className={accentActionClass}
             />
           ) : (
-            <Button className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500" />
+            <Button className={primaryButtonClass} />
           )
         }
       >
         {isEdit ? (
-          "Edit"
+          <Edit2 aria-hidden="true" />
         ) : (
           <>
             <Plus data-icon="inline-start" aria-hidden="true" />
@@ -193,24 +202,38 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
           </>
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto border border-white bg-neutral-950 sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEdit ? `Edit ${project.name}` : "Add project"}
-          </DialogTitle>
-          <DialogDescription>
-            Projects appear on the Apps page of every user granted access.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent
+        className={cn(formDialogClass, "sm:max-w-lg")}
+        showCloseButton={false}
+      >
         <form
-          id={`${idPrefix}-form`}
           noValidate
+          className="grid gap-6"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
         >
-          <FieldGroup>
+          <DialogHeader>
+            <DialogTitle>
+              {isEdit ? (
+                <>
+                  Edit{" "}
+                  <span className="wrap-anywhere text-lime-500">
+                    {project.name}
+                  </span>
+                </>
+              ) : (
+                <>
+                  Add <span className="text-lime-500">project</span>
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              Projects appear on the Apps page of every user granted access.
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup className="mt-1">
             {textField("name", "Name", { maxLength: 100 })}
             {textField("slug", "Slug", {
               spellCheck: false,
@@ -270,7 +293,7 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
                       >
                         <SelectTrigger
                           aria-labelledby={labelId}
-                          className="w-full rounded-md"
+                          className={selectTriggerClass}
                         >
                           <SelectValue>
                             {(value: string | null) => {
@@ -287,12 +310,16 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
                             }}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className={selectContentClass}>
                           <SelectGroup>
                             {PROJECT_ICON_KEYS.map((key) => {
                               const Icon = PROJECT_ICONS[key].icon;
                               return (
-                                <SelectItem key={key} value={key}>
+                                <SelectItem
+                                  key={key}
+                                  value={key}
+                                  className="rounded-md"
+                                >
                                   <Icon aria-hidden="true" />
                                   {PROJECT_ICONS[key].label}
                                 </SelectItem>
@@ -324,7 +351,7 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
                       >
                         <SelectTrigger
                           aria-labelledby={labelId}
-                          className="w-full rounded-md"
+                          className={selectTriggerClass}
                         >
                           <SelectValue>
                             {(value: string | null) =>
@@ -336,10 +363,14 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
                             }
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className={selectContentClass}>
                           <SelectGroup>
                             {STATUS_VALUES.map((status) => (
-                              <SelectItem key={status} value={String(status)}>
+                              <SelectItem
+                                key={status}
+                                value={String(status)}
+                                className="rounded-md"
+                              >
                                 {PROJECT_STATUS_LABELS[status]}
                               </SelectItem>
                             ))}
@@ -356,26 +387,33 @@ export function ProjectFormDialog({ project }: ProjectFormDialogProps) {
               />
             </div>
           </FieldGroup>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cancelButtonClass}
+                />
+              }
+            >
+              <X className="size-4" aria-hidden="true" />
+              Cancel
+            </DialogClose>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className={submitButtonClass}
+            >
+              <Save className="size-4" aria-hidden="true" />
+              {isPending
+                ? "Saving..."
+                : isEdit
+                  ? "Save changes"
+                  : "Create project"}
+            </Button>
+          </DialogFooter>
         </form>
-        <DialogFooter>
-          <DialogClose
-            render={<Button variant="outline" className="rounded-md" />}
-          >
-            Cancel
-          </DialogClose>
-          <Button
-            type="submit"
-            form={`${idPrefix}-form`}
-            disabled={isPending}
-            className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
-          >
-            {isPending
-              ? "Saving..."
-              : isEdit
-                ? "Save changes"
-                : "Create project"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

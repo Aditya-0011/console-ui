@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation, useSearchParams } from "react-router";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { consoleNextPath } from "@/lib/redirect";
 
 export function LoginLayout() {
   const { isAuthenticated, mustChangePassword } = useAuth();
@@ -14,7 +15,7 @@ export function LoginLayout() {
   // With ?redirect= the user came from another app whose session failed, so
   // keep the form visible and let them log in again.
   if (isAuthenticated && !searchParams.get("redirect")) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={consoleNextPath(searchParams.get("next"))} replace />;
   }
 
   return (

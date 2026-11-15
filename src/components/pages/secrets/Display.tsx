@@ -4,6 +4,7 @@ import { UpdatedOn } from "@/components/pages/UpdatedOn";
 import { Rotate } from "@/components/pages/Rotate";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Button } from "@/components/ui/button";
+import { primaryButtonClass } from "@/lib/styles";
 
 import { type GetKeyResponse } from "@/lib/objects";
 
@@ -88,7 +89,7 @@ export function Display({
             type="button"
             disabled={isRotating}
             onClick={onRotate}
-            className="rounded-md bg-lime-500 text-neutral-950 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+            className={primaryButtonClass}
           >
             <KeyRound aria-hidden="true" />
             {isRotating ? "Creating..." : "Create key"}

@@ -1,6 +1,7 @@
 import { Copy } from "lucide-react";
 
 import { copyText } from "@/lib/utils";
+import { secretDialogClass, submitButtonClass } from "@/lib/styles";
 
 import {
   AlertDialog,
@@ -26,7 +27,7 @@ export function NewKeyDialog({ apiKey, onClose }: NewKeyDialogProps) {
         if (!open) onClose();
       }}
     >
-      <AlertDialogContent className="border border-lime-500 sm:max-w-lg">
+      <AlertDialogContent className={secretDialogClass}>
         <AlertDialogHeader>
           <AlertDialogTitle>Your new API key</AlertDialogTitle>
           <AlertDialogDescription>
@@ -44,6 +45,7 @@ export function NewKeyDialog({ apiKey, onClose }: NewKeyDialogProps) {
           <Button
             type="button"
             variant="outline"
+            className="rounded-md"
             onClick={() =>
               apiKey && copyText(apiKey, "Key copied to clipboard")
             }
@@ -51,7 +53,9 @@ export function NewKeyDialog({ apiKey, onClose }: NewKeyDialogProps) {
             <Copy data-icon="inline-start" aria-hidden="true" />
             Copy key
           </Button>
-          <AlertDialogAction onClick={onClose}>I saved it</AlertDialogAction>
+          <AlertDialogAction onClick={onClose} className={submitButtonClass}>
+            I saved it
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

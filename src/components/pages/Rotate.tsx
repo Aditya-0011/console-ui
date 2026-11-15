@@ -15,6 +15,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
+import {
+  destructiveActionClass,
+  destructiveButtonClass,
+  destructiveDialogClass,
+} from "@/lib/styles";
 
 type RotateProps = {
   description: string;
@@ -43,7 +48,7 @@ export function Rotate({
             title={title}
             aria-label={title}
             disabled={isRotating}
-            className="text-red-500 hover:bg-red-500/10 hover:text-red-600 hover:ring hover:ring-red-500"
+            className={destructiveActionClass}
           />
         }
       >
@@ -54,7 +59,7 @@ export function Rotate({
           }
         />
       </AlertDialogTrigger>
-      <AlertDialogContent className="border border-red-500">
+      <AlertDialogContent className={destructiveDialogClass}>
         <AlertDialogHeader>
           <AlertDialogTitle>
             How <span className="font-medium text-emerald-500/50">high</span>{" "}
@@ -66,9 +71,9 @@ export function Rotate({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="rounded-md">Cancel</AlertDialogCancel>
           <AlertDialogAction
-            className="bg-neutral-950! text-red-500 hover:bg-red-500/10! hover:text-red-600 hover:ring hover:ring-red-500"
+            className={destructiveButtonClass}
             onClick={() => {
               onRotate();
               setOpen(false);

@@ -14,7 +14,7 @@ export type AuthSnapshot = {
   /** True until the boot-time GET /session check has settled. */
   isVerifying: boolean;
   identity: Identity | null;
-  sessionId: string | null;
+  signedOut: boolean;
 };
 
 function readHint(): boolean {
@@ -29,7 +29,7 @@ let snapshot: AuthSnapshot = {
   isAuthenticated: readHint(),
   isVerifying: true,
   identity: null,
-  sessionId: null,
+  signedOut: false,
 };
 
 const listeners = new Set<() => void>();
@@ -39,18 +39,14 @@ function update(next: Partial<AuthSnapshot>) {
   for (const listener of listeners) listener();
 }
 
-function signIn(identity: Identity, sessionId: string | null = null) {
+function signIn(identity: Identity) {
   writeHint(true);
-  update({
-    isAuthenticated: true,
-    identity,
-    sessionId: sessionId ?? snapshot.sessionId,
-  });
+  update({ isAuthenticated: true, identity, signedOut: false });
 }
 
-function signOut() {
+function signOut(explicit: boolean) {
   writeHint(false);
-  update({ isAuthenticated: false, identity: null, sessionId: null });
+  update({ isAuthenticated: false, identity: null, signedOut: explicit });
 }
 
 export const authStore = {
@@ -62,7 +58,8 @@ export const authStore = {
     };
   },
   login: signIn,
-  logout: signOut,
+  logout: () => signOut(true),
+  expire: () => signOut(false),
   /** The server answered 403 "Password change required". */
   requirePasswordChange() {
     if (snapshot.identity && !snapshot.identity.must_change_password) {
@@ -97,10 +94,10 @@ window.addEventListener("storage", (event) => {
   if (isAuthenticated) {
     // Another tab logged in: fetch our own Identity for this tab.
     verification = null;
-    update({ isAuthenticated: true, isVerifying: true });
+    update({ isAuthenticated: true, isVerifying: true, signedOut: false });
     void verifySession();
   } else {
-    update({ isAuthenticated: false, identity: null, sessionId: null });
+    update({ isAuthenticated: false, identity: null, signedOut: true });
   }
 });
 
@@ -116,10 +113,16 @@ export function verifySession(): Promise<void> {
       });
       if (res.ok) {
         const body = (await res.json()) as SessionIdentity;
-        const { session_id: sessionId, ...identity } = body;
-        signIn(identity, sessionId);
+        const identity: Identity = {
+          user_id: body.user_id,
+          email: body.email,
+          role: body.role,
+          projects: body.projects,
+          must_change_password: body.must_change_password,
+        };
+        signIn(identity);
       } else if (res.status === 401) {
-        signOut();
+        signOut(false);
       }
       // Other statuses: keep the optimistic hint; API calls will re-check.
     } catch {

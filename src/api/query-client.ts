@@ -12,7 +12,7 @@ import { FetchError } from "@/lib/types";
 
 function endSession() {
   queryClient.clear();
-  authStore.logout();
+  authStore.expire();
   toast.error("Your session has ended. Please log in again.", {
     id: "session-ended",
   });

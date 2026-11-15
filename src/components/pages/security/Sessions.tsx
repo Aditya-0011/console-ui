@@ -1,6 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { LogOut } from "lucide-react";
+
 import { useDataMutation, useDataQuery } from "@/api/handler";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -10,6 +12,15 @@ import {
 } from "@/lib/objects";
 import { formatTimestamp } from "@/lib/time";
 import { describeUserAgent } from "@/lib/user-agent";
+import {
+  destructiveActionClass,
+  destructiveButtonClass,
+  destructiveDialogClass,
+  tableCellClass,
+  tableHeadClass,
+  tableRowClass,
+} from "@/lib/styles";
+import { cn } from "@/lib/utils";
 
 import {
   AlertDialog,
@@ -22,7 +33,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -40,6 +50,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusPill } from "@/components/StatusPill";
 
 const SESSIONS_KEY = ["sessions"];
 const EMPTY_SESSIONS: DeviceSession[] = [];
@@ -94,7 +105,7 @@ export function Sessions() {
   return (
     <Card className="bg-muted/5 ring ring-white/10">
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="text-lg leading-tight font-semibold tracking-tight">
           <h2>Signed-in devices</h2>
         </CardTitle>
         <CardDescription>
@@ -111,7 +122,12 @@ export function Sessions() {
         ) : isError ? (
           <div className="flex items-center justify-between gap-2 text-sm text-red-400">
             Could not load your sessions.
-            <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-md"
+              onClick={() => void refetch()}
+            >
               Retry
             </Button>
           </div>
@@ -120,48 +136,57 @@ export function Sessions() {
             <Table className="table-stack">
               <TableHeader>
                 <TableRow className="border-white/10 hover:bg-transparent">
-                  <TableHead>Device</TableHead>
-                  <TableHead>IP</TableHead>
-                  <TableHead>Signed in</TableHead>
-                  <TableHead>Last active</TableHead>
-                  <TableHead className="text-right">
+                  <TableHead className={tableHeadClass}>Device</TableHead>
+                  <TableHead className={tableHeadClass}>IP</TableHead>
+                  <TableHead className={tableHeadClass}>Signed in</TableHead>
+                  <TableHead className={tableHeadClass}>Last active</TableHead>
+                  <TableHead className={cn(tableHeadClass, "text-right")}>
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sessions.map((session) => (
-                  <TableRow key={session.id} className="border-white/5">
-                    <TableCell data-label="Device">
+                  <TableRow key={session.id} className={tableRowClass}>
+                    <TableCell className={tableCellClass} data-label="Device">
                       <div className="flex flex-wrap items-center justify-end gap-2 xl:justify-start">
                         <span title={session.user_agent}>
                           {describeUserAgent(session.user_agent)}
                         </span>
                         {session.current && (
-                          <Badge variant="secondary">This device</Badge>
+                          <StatusPill tone="neutral">This device</StatusPill>
                         )}
                       </div>
                     </TableCell>
                     <TableCell
-                      className="font-mono text-xs wrap-anywhere whitespace-normal"
+                      className={cn(
+                        tableCellClass,
+                        "font-mono text-xs wrap-anywhere whitespace-normal",
+                      )}
                       data-label="IP"
                       translate="no"
                     >
                       {session.ip || "—"}
                     </TableCell>
                     <TableCell
-                      className="text-muted-foreground text-xs"
+                      className={cn(
+                        tableCellClass,
+                        "text-muted-foreground text-xs",
+                      )}
                       data-label="Signed in"
                     >
                       {formatTimestamp(session.created_at)}
                     </TableCell>
                     <TableCell
-                      className="text-muted-foreground text-xs"
+                      className={cn(
+                        tableCellClass,
+                        "text-muted-foreground text-xs",
+                      )}
                       data-label="Last active"
                     >
                       {formatTimestamp(session.last_seen_at)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cn(tableCellClass, "text-right")}>
                       <RevokeButton
                         session={session}
                         disabled={revoke.isPending}
@@ -181,7 +206,7 @@ export function Sessions() {
             variant="outline"
             disabled={others === 0 || revokeOthers.isPending}
             onClick={() => revokeOthers.mutate(null)}
-            className="rounded-md text-red-500 hover:bg-red-500/10 hover:text-red-400"
+            className={destructiveButtonClass}
           >
             {revokeOthers.isPending
               ? "Signing out..."
@@ -211,13 +236,14 @@ function RevokeButton({
       <Button
         type="button"
         variant="ghost"
-        size="sm"
+        size="icon-sm"
         disabled={disabled}
         aria-label={label}
+        title="Revoke"
         onClick={onConfirm}
-        className="text-red-500 hover:bg-red-500/10 hover:text-red-400"
+        className={destructiveActionClass}
       >
-        Revoke
+        <LogOut aria-hidden="true" />
       </Button>
     );
   }
@@ -229,16 +255,17 @@ function RevokeButton({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="icon-sm"
             disabled={disabled}
             aria-label={label}
-            className="text-red-500 hover:bg-red-500/10 hover:text-red-400"
+            title="Revoke"
+            className={destructiveActionClass}
           />
         }
       >
-        Revoke
+        <LogOut aria-hidden="true" />
       </AlertDialogTrigger>
-      <AlertDialogContent className="border border-red-500">
+      <AlertDialogContent className={destructiveDialogClass}>
         <AlertDialogHeader>
           <AlertDialogTitle>Sign out this device?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -247,10 +274,10 @@ function RevokeButton({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="rounded-md">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-neutral-950! text-red-500 hover:bg-red-500/10! hover:text-red-600 hover:ring hover:ring-red-500"
+            className={destructiveButtonClass}
           >
             Sign out
           </AlertDialogAction>

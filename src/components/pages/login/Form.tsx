@@ -13,8 +13,9 @@ import {
   type Identity,
   type LoginRequest,
 } from "@/lib/objects";
-import { followProjectRedirect } from "@/lib/redirect";
+import { consoleNextPath, followProjectRedirect } from "@/lib/redirect";
 import { cn } from "@/lib/utils";
+import { inputClass, primaryButtonClass } from "@/lib/styles";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -78,7 +79,12 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
         );
         if (leaving) return;
       }
-      navigate("/", { replace: true });
+      navigate(
+        consoleNextPath(redirectTarget ? null : searchParams.get("next")),
+        {
+          replace: true,
+        },
+      );
     },
   });
 
@@ -121,7 +127,7 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
                         aria-invalid={isInvalid}
                         type="email"
                         required
-                        className="rounded-md focus-visible:border-lime-500 focus-visible:ring-0 focus-visible:ring-lime-500"
+                        className={inputClass}
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -169,7 +175,7 @@ export function Form({ className, ...props }: React.ComponentProps<"div">) {
                   form="login-form"
                   type="submit"
                   disabled={isPending}
-                  className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+                  className={primaryButtonClass}
                 >
                   {isPending ? "Logging in..." : "Login"}
                 </Button>

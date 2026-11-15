@@ -8,6 +8,7 @@ import {
   type ChangePasswordRequest,
   type SimpleResponse,
 } from "@/lib/objects";
+import { primaryButtonClass } from "@/lib/styles";
 
 import {
   Card,
@@ -79,7 +80,7 @@ export function ChangePassword() {
   return (
     <Card className="bg-muted/5 ring ring-white/10">
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="text-lg leading-tight font-semibold tracking-tight">
           <h2>Change password</h2>
         </CardTitle>
         <CardDescription>
@@ -137,7 +138,7 @@ export function ChangePassword() {
                 type="submit"
                 form="change-password-form"
                 disabled={isPending}
-                className="rounded-md bg-lime-500 hover:bg-neutral-950 hover:text-lime-500 hover:ring hover:ring-lime-500"
+                className={primaryButtonClass}
               >
                 {isPending ? "Saving..." : "Change password"}
               </Button>

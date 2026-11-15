@@ -1,6 +1,7 @@
 import { Copy } from "lucide-react";
 
 import { copyText } from "@/lib/utils";
+import { secretDialogClass, submitButtonClass } from "@/lib/styles";
 
 import {
   AlertDialog,
@@ -32,7 +33,7 @@ export function TemporaryPasswordDialog({
         if (!open) onClose();
       }}
     >
-      <AlertDialogContent className="border border-lime-500 sm:max-w-lg">
+      <AlertDialogContent className={secretDialogClass}>
         <AlertDialogHeader>
           <AlertDialogTitle>Temporary password</AlertDialogTitle>
           <AlertDialogDescription>
@@ -51,6 +52,7 @@ export function TemporaryPasswordDialog({
           <Button
             type="button"
             variant="outline"
+            className="rounded-md"
             onClick={() =>
               value && copyText(value.password, "Temporary password copied")
             }
@@ -58,7 +60,9 @@ export function TemporaryPasswordDialog({
             <Copy data-icon="inline-start" aria-hidden="true" />
             Copy
           </Button>
-          <AlertDialogAction onClick={onClose}>Done</AlertDialogAction>
+          <AlertDialogAction onClick={onClose} className={submitButtonClass}>
+            Done
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

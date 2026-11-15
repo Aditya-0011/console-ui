@@ -32,7 +32,7 @@ export function Error({ content, onRetry }: ErrorProps) {
         <Button
           variant="outline"
           onClick={() => (onRetry ? onRetry() : window.location.reload())}
-          className="border-sky-500/20 bg-sky-500/5 text-sky-500 hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400"
+          className="border-lime-500/20 bg-lime-500/5 text-lime-500 hover:border-lime-500/50 hover:bg-lime-500/10 hover:text-lime-400"
         >
           Retry
         </Button>

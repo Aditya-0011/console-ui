@@ -18,6 +18,18 @@ function safeNextPath(next: string | null): string | null {
   return next;
 }
 
+const PUBLIC_PATHS = /^\/(login|reset|welcome)(?:[/?#]|$)/;
+
+export function consoleNextPath(next: string | null): string {
+  const path = safeNextPath(next);
+  return path && !PUBLIC_PATHS.test(path) ? path : "/";
+}
+
+export function loginPath(pathname: string, search: string): string {
+  if (pathname === "/") return "/login";
+  return `/login?next=${encodeURIComponent(pathname + search)}`;
+}
+
 /**
  * Resolve ?redirect=<app> (Manager/Wallet send their slug) against the
  * projects this user can see, matching slug or name case-insensitively, and

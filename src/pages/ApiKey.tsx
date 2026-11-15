@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { useDataMutation, useDataQuery } from "@/api/handler";
 import {
@@ -35,12 +36,19 @@ export default function ApiKey() {
   const { mutate: revoke, isPending: isRevoking } = useDataMutation<
     null,
     SimpleResponse
-  >("auth", "/key/revoke", false, { invalidateKey: [["secrets"]] });
+  >("auth", "/key/revoke", false, {
+    invalidateKey: [["secrets"]],
+    onSuccess: (response) =>
+      toast.success(response.message || "API key revoked"),
+  });
 
   const { mutate: saveOrigins, isPending: isSaving } = useDataMutation<
     { origins: string[] },
     KeyOriginsResponse
-  >("auth", "/key/origins", false, { invalidateKey: [["secrets"]] });
+  >("auth", "/key/origins", false, {
+    invalidateKey: [["secrets"]],
+    onSuccess: () => toast.success("Allowed domains saved"),
+  });
 
   if (isLoading) {
     return <Loading content="key" />;
@@ -53,8 +61,15 @@ export default function ApiKey() {
   const origins = data.origins ?? [];
 
   return (
-    <div className="flex w-full flex-col gap-8 pb-16 text-white">
-      <h1 className="text-3xl font-semibold">API Key</h1>
+    <div className="flex w-full flex-col gap-6 text-white">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold sm:text-3xl">API Key</h1>
+          <p className="text-muted-foreground mt-1 text-xs">
+            Portfolio key and allowed domains
+          </p>
+        </div>
+      </div>
       <div className="flex flex-col items-center gap-10">
         <Display
           data={data}
